@@ -32,7 +32,7 @@ export default function Landing({ onStart }) {
             FAIR SHIFT
           </h1>
           <p className="mt-3 text-base leading-7 text-white/80">
-            60 seconds. Keep output + safety + quality balanced.
+            60 seconds. Fair choice or shortcut?
           </p>
 
           {/* Glass card with 3D shadow */}
@@ -67,21 +67,15 @@ export default function Landing({ onStart }) {
             <div className="mt-3 rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 backdrop-blur-sm">
               <ul className="space-y-3 text-sm leading-6 text-white/80">
                 <li className="flex items-start gap-3">
-                  <span className="mt-0.5">➡️</span>
-                  <span>
-                    Swipe <span className="font-semibold text-white">RIGHT</span>: push output.
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
                   <span className="mt-0.5">⬅️</span>
                   <span>
-                    Swipe <span className="font-semibold text-white">LEFT</span>: protect safety + quality.
+                    Swipe <span className="font-semibold text-rose-300">LEFT</span> = SHORTCUT (wrong)
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="mt-0.5">🛑</span>
+                  <span className="mt-0.5">➡️</span>
                   <span>
-                    Tap <span className="font-semibold text-white">STOP</span> only on hazards.
+                    Swipe <span className="font-semibold text-lime-300">RIGHT</span> = FAIR (right)
                   </span>
                 </li>
               </ul>

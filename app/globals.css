@@ -336,6 +336,27 @@ body {
   }
 }
 
+/* Subtle swipe hint animation for first question */
+@keyframes fairshift-swipe-hint {
+
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateX(-12px) rotate(-0.8deg);
+  }
+
+  50% {
+    transform: translateX(0) rotate(0deg);
+  }
+
+  75% {
+    transform: translateX(12px) rotate(0.8deg);
+  }
+}
+
 /* Prevent iOS rubber-band glow showing white behind full-screen views */
 html,
 body {

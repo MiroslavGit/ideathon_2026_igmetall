@@ -4,12 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ANSWER,
   DEFAULT_SESSION_SECONDS,
-  QUESTION_TIME_LIMIT_MS,
   SPEED_BONUS_THRESHOLD_MS,
   pickQuestion,
   resetQuestionPicker,
   resolveAnswer,
-  resolveTimeout,
   shouldEnd,
   updateStats,
 } from "../game/logic";
@@ -59,11 +57,18 @@ export default function Game({
   });
   const [questionKey, setQuestionKey] = useState(0);
   const [feedback, setFeedback] = useState(null);
-  const [questionProgress, setQuestionProgress] = useState(0);
   const [waitingForNext, setWaitingForNext] = useState(false);
 
   const [benefitsUnlocked, setBenefitsUnlocked] = useState({});
   const [benefitPopup, setBenefitPopup] = useState(null);
+
+  // Swipe state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(0);
+  const [dragCurrent, setDragCurrent] = useState(0);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
+  const cardRef = useRef(null);
 
   const finishRef = useRef(onFinish);
   useEffect(() => {
@@ -83,43 +88,14 @@ export default function Game({
       const elapsedSec = (now - startedAtRef.current) / 1000;
       const left = Math.max(0, sessionSeconds - elapsedSec);
       setSecondsLeft(left);
-
-      if (waitingForNext) return;
-
-      const questionElapsed = now - questionStartRef.current;
-      const prog = Math.min(1, questionElapsed / QUESTION_TIME_LIMIT_MS);
-      setQuestionProgress(prog);
-
-      if (prog >= 1) {
-        handleTimeout();
-      }
     };
 
     const id = window.setInterval(tick, 50);
     return () => window.clearInterval(id);
-  }, [waitingForNext, sessionSeconds]);
-
-  const handleTimeout = () => {
-    if (waitingForNext) return;
-
-    const res = resolveTimeout({ streak, score });
-    setScore(res.nextScore);
-    setStreak(0);
-    setAnswered((n) => n + 1);
-    setWrongCount((n) => n + 1);
-    setWrongStreak((n) => n + 1);
-
-    // Update stats for benefit tracking
-    setStats((prev) => updateStats(prev, question, false));
-
-    setFeedback({ kind: "bad", text: "Time out!" });
-    vibrate(30);
-    advanceToNext();
-  };
+  }, [sessionSeconds]);
 
   const advanceToNext = () => {
     setWaitingForNext(true);
-    setQuestionProgress(0);
     setTimeout(() => {
       setQuestion(pickQuestion(rng, character?.role));
       setQuestionKey((k) => k + 1);
@@ -178,6 +154,66 @@ export default function Game({
       });
     }
   }, [secondsLeft, score, answered, correctCount, wrongCount, maxStreak, benefitsUnlocked, character]);
+
+  // Swipe handlers
+  const handlePointerDown = (e) => {
+    if (waitingForNext || isAnimatingOut) return;
+    setShowSwipeHint(false); // Cancel hint once user interacts
+    setIsDragging(true);
+    setDragStart(e.clientX);
+    setDragCurrent(e.clientX);
+    if (cardRef.current) {
+      cardRef.current.style.transition = 'none';
+    }
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging) return;
+    setDragCurrent(e.clientX);
+  };
+
+  const handlePointerUp = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    const deltaX = dragCurrent - dragStart;
+    const threshold = 90;
+
+    if (Math.abs(deltaX) > threshold) {
+      // Swipe detected - animate out and commit answer
+      const answer = deltaX < 0 ? ANSWER.SHORTCUT : ANSWER.FAIR;
+      setIsAnimatingOut(true);
+
+      if (cardRef.current) {
+        const finalX = deltaX < 0 ? -400 : 400;
+        cardRef.current.style.transition = 'transform 0.3s ease-out';
+        cardRef.current.style.transform = `translateX(${finalX}px) rotate(${finalX * 0.1}deg)`;
+      }
+
+      setTimeout(() => {
+        commitAnswer(answer);
+        setIsAnimatingOut(false);
+        setDragStart(0);
+        setDragCurrent(0);
+      }, 300);
+    } else {
+      // Spring back
+      if (cardRef.current) {
+        cardRef.current.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        cardRef.current.style.transform = 'translateX(0) rotate(0deg)';
+      }
+      setDragStart(0);
+      setDragCurrent(0);
+    }
+  };
+
+  // Reset card position when new question appears
+  useEffect(() => {
+    if (!waitingForNext && cardRef.current) {
+      cardRef.current.style.transition = 'none';
+      cardRef.current.style.transform = 'translateX(0) rotate(0deg)';
+    }
+  }, [questionKey, waitingForNext]);
 
   // commitAnswer - handles FAIR/SHORTCUT actions
   const commitAnswer = (answer) => {
@@ -363,26 +399,111 @@ export default function Game({
           </div>
         </div>
 
-        {/* Question Card */}
+        {/* Swipeable Question Card */}
         {!waitingForNext && (
-          <div
-            key={questionKey}
-            className="mt-6 rounded-2xl bg-zinc-900/80 p-6 shadow-2xl ring-1 ring-white/20 backdrop-blur-md"
-            style={{ animation: "fairshift-card-in 0.3s ease-out" }}
-          >
-            <div className="text-xl font-semibold leading-snug line-clamp-3">
-              {question.text}
-            </div>
-            {question.context && (
-              <div className="mt-2 text-sm text-white/60">{question.context}</div>
-            )}
+          <div className="mt-8 flex min-h-[50vh] items-center justify-center" style={{ touchAction: 'pan-y' }}>
+            <div
+              ref={cardRef}
+              key={questionKey}
+              className="relative w-full max-w-sm rounded-3xl bg-zinc-900/90 shadow-2xl ring-1 ring-white/20 backdrop-blur-md cursor-grab active:cursor-grabbing"
+              style={{
+                animation: isAnimatingOut ? 'none' : (showSwipeHint && answered === 0 ? 'fairshift-card-in 0.4s ease-out, fairshift-swipe-hint 1.1s ease-in-out 0.6s' : 'fairshift-card-in 0.4s ease-out'),
+                touchAction: 'none',
+                transform: isDragging ? `translateX(${dragCurrent - dragStart}px) rotate(${(dragCurrent - dragStart) * 0.05}deg)` : 'translateX(0) rotate(0deg)'
+              }}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerUp}
+            >
+              {/* Swipe direction badges */}
+              {isDragging && Math.abs(dragCurrent - dragStart) > 30 && (
+                <>
+                  <div
+                    className="absolute left-6 top-6 z-20 rounded-xl bg-rose-500/90 px-4 py-2 font-bold text-white shadow-lg ring-2 ring-white/30 transition-opacity"
+                    style={{ opacity: (dragCurrent - dragStart) < -30 ? Math.min(1, Math.abs(dragCurrent - dragStart) / 90) : 0 }}
+                  >
+                    ✕ SHORTCUT
+                  </div>
+                  <div
+                    className="absolute right-6 top-6 z-20 rounded-xl bg-emerald-500/90 px-4 py-2 font-bold text-white shadow-lg ring-2 ring-white/30 transition-opacity"
+                    style={{ opacity: (dragCurrent - dragStart) > 30 ? Math.min(1, (dragCurrent - dragStart) / 90) : 0 }}
+                  >
+                    ✓ FAIR
+                  </div>
+                </>
+              )}
 
-            {/* Question timer bar - slimmer and less saturated */}
-            <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-linear-to-r from-lime-400/70 via-amber-400/70 to-rose-400/70 transition-all"
-                style={{ width: `${(1 - questionProgress) * 100}%` }}
-              />
+              {/* Role-based visual "photo" */}
+              <div className="relative h-48 overflow-hidden rounded-t-3xl bg-zinc-800/50">
+                {(character?.role === 'factory' || character?.role === 'technician') && (
+                  <svg viewBox="0 0 400 192" className="h-full w-full">
+                    <defs>
+                      <linearGradient id="factoryGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#163828" />
+                        <stop offset="100%" stopColor="#0a1f14" />
+                      </linearGradient>
+                      <pattern id="stripes" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <rect x="0" y="0" width="20" height="40" fill="#fbbf24" opacity="0.3" />
+                      </pattern>
+                    </defs>
+                    <rect width="400" height="192" fill="url(#factoryGrad)" />
+                    <rect width="400" height="192" fill="url(#stripes)" opacity="0.4" />
+                    <rect x="50" y="60" width="300" height="40" rx="8" fill="#52525b" opacity="0.6" />
+                    <circle cx="80" cy="140" r="12" fill="#ef4444" opacity="0.7" />
+                    <circle cx="200" cy="140" r="12" fill="#ef4444" opacity="0.7" />
+                    <circle cx="320" cy="140" r="12" fill="#ef4444" opacity="0.7" />
+                    <polygon points="160,100 180,80 220,80 240,100" fill="#fbbf24" opacity="0.5" />
+                  </svg>
+                )}
+                {character?.role === 'engineer' && (
+                  <svg viewBox="0 0 400 192" className="h-full w-full">
+                    <defs>
+                      <linearGradient id="engineerGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#1e3a8a" />
+                        <stop offset="100%" stopColor="#0c1e42" />
+                      </linearGradient>
+                    </defs>
+                    <rect width="400" height="192" fill="url(#engineerGrad)" />
+                    <rect x="80" y="60" width="240" height="140" rx="8" fill="#334155" opacity="0.6" />
+                    <rect x="100" y="80" width="180" height="100" rx="4" fill="#38bdf8" opacity="0.3" />
+                    <line x1="120" y1="100" x2="260" y2="100" stroke="#38bdf8" strokeWidth="2" opacity="0.5" />
+                    <line x1="120" y1="120" x2="240" y2="120" stroke="#38bdf8" strokeWidth="2" opacity="0.5" />
+                    <line x1="120" y1="140" x2="220" y2="140" stroke="#38bdf8" strokeWidth="2" opacity="0.5" />
+                    <circle cx="300" cy="50" r="20" fill="#60a5fa" opacity="0.4" />
+                  </svg>
+                )}
+                {character?.role === 'logistics' && (
+                  <svg viewBox="0 0 400 192" className="h-full w-full">
+                    <defs>
+                      <linearGradient id="logisticsGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#78350f" />
+                        <stop offset="100%" stopColor="#3a1a08" />
+                      </linearGradient>
+                    </defs>
+                    <rect width="400" height="192" fill="url(#logisticsGrad)" />
+                    <rect x="60" y="80" width="80" height="80" rx="4" fill="#92400e" opacity="0.6" stroke="#fbbf24" strokeWidth="2" />
+                    <rect x="160" y="80" width="80" height="80" rx="4" fill="#92400e" opacity="0.6" stroke="#fbbf24" strokeWidth="2" />
+                    <rect x="260" y="80" width="80" height="80" rx="4" fill="#92400e" opacity="0.6" stroke="#fbbf24" strokeWidth="2" />
+                    <rect x="110" y="40" width="80" height="80" rx="4" fill="#b45309" opacity="0.7" stroke="#fbbf24" strokeWidth="2" />
+                    <rect x="210" y="40" width="80" height="80" rx="4" fill="#b45309" opacity="0.7" stroke="#fbbf24" strokeWidth="2" />
+                    <path d="M 40 160 L 60 140 L 80 160 L 60 180 Z" fill="#fbbf24" opacity="0.5" />
+                  </svg>
+                )}
+              </div>
+
+              {/* Question text */}
+              <div className="p-6">
+                <div className="text-xl font-semibold leading-snug">
+                  {question.text}
+                </div>
+                {question.context && (
+                  <div className="mt-3 text-sm text-white/60 italic">{question.context}</div>
+                )}
+                <div className="mt-4 text-xs text-white/40 text-center">
+                  ← Swipe to answer →
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -402,37 +523,8 @@ export default function Game({
           </div>
         )}
 
-        {/* Bottom spacing for fixed action bar */}
-        <div className="h-32" />
-      </div>
-
-      {/* Fixed bottom action bar with answer buttons */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-linear-to-t from-zinc-950 via-zinc-950 to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-6">
-        <div className="mx-auto grid w-full max-w-xl grid-cols-2 gap-3">
-          <button
-            className="group relative overflow-hidden rounded-xl bg-emerald-900/40 px-5 py-4 font-bold text-white shadow-lg ring-1 ring-emerald-700/40 backdrop-blur-sm transition-all active:scale-[0.99] disabled:opacity-50 disabled:active:scale-100"
-            onClick={() => commitAnswer(ANSWER.FAIR)}
-            disabled={waitingForNext}
-          >
-            <div className="relative z-10 flex items-center justify-center gap-2">
-              <span className="text-lg">✓</span>
-              <span className="text-base">FAIR</span>
-            </div>
-            <div className="absolute inset-0 bg-linear-to-br from-emerald-600/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-          </button>
-
-          <button
-            className="group relative overflow-hidden rounded-xl bg-rose-900/40 px-5 py-4 font-bold text-white shadow-lg ring-1 ring-rose-700/40 backdrop-blur-sm transition-all active:scale-[0.99] disabled:opacity-50 disabled:active:scale-100"
-            onClick={() => commitAnswer(ANSWER.SHORTCUT)}
-            disabled={waitingForNext}
-          >
-            <div className="relative z-10 flex items-center justify-center gap-2">
-              <span className="text-lg">✕</span>
-              <span className="text-base">SHORTCUT</span>
-            </div>
-            <div className="absolute inset-0 bg-linear-to-br from-rose-600/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-          </button>
-        </div>
+        {/* Bottom spacing */}
+        <div className="h-8" />
       </div>
     </div>
   );

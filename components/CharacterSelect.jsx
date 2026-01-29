@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import AvatarPreview from "./AvatarPreview";
 
 const ROLES = [
   {
@@ -63,16 +62,7 @@ export default function CharacterSelect({
           </button>
         </div>
 
-        <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-center">Choose your character</h1>
-
-        <div className="mt-4">
-          <AvatarPreview
-            colorHex={defaultColor}
-            nickname={nickname}
-            role={role}
-            accessory={resolvedAccessory}
-          />
-        </div>
+        <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-center">Pick your role</h1>
 
         <section className="mt-4 rounded-2xl bg-white/5 p-4 shadow-xl ring-1 ring-white/10 backdrop-blur-sm">
           <label className="block text-xs font-semibold text-white/70">

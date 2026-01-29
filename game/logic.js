@@ -66,22 +66,45 @@ function shuffle(array, rng) {
 function createQuestionBag(rng, role, bagSize = 30) {
   const questionsForRole = getQuestionsForRole(role);
 
-  // Create weighted pool
-  const weightedPool = [];
-  questionsForRole.forEach((q) => {
+  // Separate high-weight (role-specific) and low-weight (common) questions
+  const roleSpecific = questionsForRole.filter(q => q.weight >= 3);
+  const common = questionsForRole.filter(q => q.weight < 3);
+
+  // Calculate target: 70-85% role-specific, 15-30% common
+  const targetRoleCount = Math.floor(bagSize * (0.70 + rng() * 0.15)); // 70-85%
+  const targetCommonCount = bagSize - targetRoleCount;
+
+  // Build weighted pools
+  const rolePool = [];
+  roleSpecific.forEach((q) => {
     const count = Math.max(1, Math.round(q.weight));
     for (let i = 0; i < count; i++) {
-      weightedPool.push(q);
+      rolePool.push(q);
     }
   });
 
-  // Shuffle and take bagSize questions
-  const shuffled = shuffle(weightedPool, rng);
-  const bag = shuffled.slice(0, bagSize);
+  const commonPool = [];
+  common.forEach((q) => {
+    const count = Math.max(1, Math.round(q.weight));
+    for (let i = 0; i < count; i++) {
+      commonPool.push(q);
+    }
+  });
+
+  // Pick from each pool
+  const shuffledRole = shuffle(rolePool, rng);
+  const shuffledCommon = shuffle(commonPool, rng);
+  const bag = [
+    ...shuffledRole.slice(0, targetRoleCount),
+    ...shuffledCommon.slice(0, targetCommonCount)
+  ];
+
+  // Shuffle combined bag
+  const finalBag = shuffle(bag, rng).slice(0, bagSize);
 
   // Ensure we have both FAIR and SHORTCUT answers
-  const fairCount = bag.filter(q => q.correct === ANSWER.FAIR).length;
-  const shortcutCount = bag.filter(q => q.correct === ANSWER.SHORTCUT).length;
+  const fairCount = finalBag.filter(q => q.correct === ANSWER.FAIR).length;
+  const shortcutCount = finalBag.filter(q => q.correct === ANSWER.SHORTCUT).length;
 
   // If too imbalanced, adjust
   if (fairCount === 0 || shortcutCount === 0) {
@@ -89,16 +112,16 @@ function createQuestionBag(rng, role, bagSize = 30) {
     const shortcutQuestions = questionsForRole.filter(q => q.correct === ANSWER.SHORTCUT);
 
     if (fairCount === 0 && fairQuestions.length > 0) {
-      const idx = Math.floor(rng() * bag.length);
-      bag[idx] = fairQuestions[Math.floor(rng() * fairQuestions.length)];
+      const idx = Math.floor(rng() * finalBag.length);
+      finalBag[idx] = fairQuestions[Math.floor(rng() * fairQuestions.length)];
     }
     if (shortcutCount === 0 && shortcutQuestions.length > 0) {
-      const idx = Math.floor(rng() * bag.length);
-      bag[idx] = shortcutQuestions[Math.floor(rng() * shortcutQuestions.length)];
+      const idx = Math.floor(rng() * finalBag.length);
+      finalBag[idx] = shortcutQuestions[Math.floor(rng() * shortcutQuestions.length)];
     }
   }
 
-  return shuffle(bag, rng);
+  return finalBag;
 }
 
 // Reset question picker state
