@@ -37,7 +37,6 @@ export default function Game({
   const questionStartRef = useRef(0);
 
   const [secondsLeft, setSecondsLeft] = useState(sessionSeconds);
-  const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [answered, setAnswered] = useState(0);
@@ -145,7 +144,6 @@ export default function Game({
     if (shouldEnd(secondsLeft)) {
       finishedRef.current = true;
       finishRef.current({
-        score,
         answered,
         correctCount,
         wrongCount,
@@ -154,7 +152,7 @@ export default function Game({
         character,
       });
     }
-  }, [secondsLeft, score, answered, correctCount, wrongCount, maxStreak, benefitsUnlocked, character]);
+  }, [secondsLeft, answered, correctCount, wrongCount, maxStreak, benefitsUnlocked, character]);
 
   // Swipe handlers
   const handlePointerDown = (e) => {
@@ -225,9 +223,8 @@ export default function Game({
     const now = performance.now();
     const responseTimeMs = now - questionStartRef.current;
 
-    const res = resolveAnswer({ question, answer, streak, score, responseTimeMs });
+    const res = resolveAnswer({ question, answer, streak, score: 0, responseTimeMs });
 
-    setScore(res.nextScore);
     setStreak(res.nextStreak);
     setMaxStreak((m) => Math.max(m, res.nextStreak));
     setAnswered((n) => n + 1);
@@ -237,13 +234,9 @@ export default function Game({
       setWrongStreak(0);
       vibrate(14);
 
-      // Show feedback on streak milestones or speed bonus
+      // Show feedback on streak milestones
       const showMilestone = res.nextStreak >= 3 && (res.nextStreak === 3 || res.nextStreak === 5 || res.nextStreak === 8);
-      const feedbackText = showMilestone
-        ? `Nice! x${res.nextStreak}`
-        : res.speedBonus
-          ? `⚡ +${res.scoreChange}`
-          : null;
+      const feedbackText = showMilestone ? `Nice! x${res.nextStreak}` : null;
 
       if (feedbackText) {
         setFeedback({ kind: "good", text: feedbackText });
@@ -367,7 +360,6 @@ export default function Game({
             <div className="text-[10px] text-white/60">Time left</div>
           </div>
           <div className="text-right">
-            <div className="text-xl font-extrabold tabular-nums">{score}</div>
             <div className="text-[10px] text-white/60">
               Streak: <span className="font-semibold">{streak}</span> • Answered: {answered}
             </div>

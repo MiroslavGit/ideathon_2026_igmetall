@@ -4,7 +4,6 @@ import { BENEFITS } from "../game/benefits";
 
 export default function Results({
   summary,
-  bestScore,
   onPlayAgain,
   onBoost,
 }) {
@@ -12,36 +11,6 @@ export default function Results({
     <div className="min-h-svh bg-zinc-950 text-white">
       <div className="mx-auto w-full max-w-xl px-4 pb-10 pt-[calc(env(safe-area-inset-top)+20px)]">
         <h1 className="text-3xl font-extrabold tracking-tight">Results</h1>
-
-        <div className="mt-4 grid gap-3">
-          <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-            <div className="text-sm text-white/70">Final score</div>
-            <div className="mt-1 text-5xl font-extrabold tabular-nums">
-              {summary.score}
-            </div>
-            <div className="mt-2 flex items-center justify-between text-sm text-white/70">
-              <span className="tabular-nums">Answered: {summary.answered}</span>
-              <span className="tabular-nums">Max streak: {summary.maxStreak}</span>
-            </div>
-            {summary.correctCount !== undefined && (
-              <div className="mt-1 text-xs text-white/60">
-                Correct: {summary.correctCount} • Wrong: {summary.wrongCount}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-semibold">Best score</div>
-                <div className="text-xs text-white/60">
-                  Stored locally on this device
-                </div>
-              </div>
-              <div className="text-2xl font-bold tabular-nums">{bestScore}</div>
-            </div>
-          </div>
-        </div>
 
         {/* Benefits sections */}
         <div className="mt-6 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
