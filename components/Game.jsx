@@ -68,6 +68,7 @@ export default function Game({
   const [dragCurrent, setDragCurrent] = useState(0);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
+  const [showPreSwipeHelper, setShowPreSwipeHelper] = useState(true);
   const cardRef = useRef(null);
 
   const finishRef = useRef(onFinish);
@@ -218,6 +219,8 @@ export default function Game({
   // commitAnswer - handles FAIR/SHORTCUT actions
   const commitAnswer = (answer) => {
     if (waitingForNext) return;
+
+    setShowPreSwipeHelper(false); // Hide helper after first answer
 
     const now = performance.now();
     const responseTimeMs = now - questionStartRef.current;
@@ -373,8 +376,8 @@ export default function Game({
 
         {/* Benefits row with label */}
         <div className="mt-4">
-          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-white/50">Protections</div>
-          <div className="flex items-center gap-2">
+          <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-wider text-white/50">Protections</div>
+          <div className="flex items-center justify-center gap-2">
             {BENEFITS.map((b) => {
               const unlocked = benefitsUnlocked[b.id];
               const justUnlocked = benefitPopup?.icon === b.icon;
@@ -399,13 +402,27 @@ export default function Game({
           </div>
         </div>
 
+        {/* Pre-swipe instruction helper (first question only) */}
+        {showPreSwipeHelper && answered === 0 && !waitingForNext && (
+          <div className="mt-4 flex items-center justify-center gap-3 text-xs" style={{ animation: 'fairshift-card-in 0.5s ease-out 0.3s both' }}>
+            <div className="flex items-center gap-1.5 rounded-full bg-rose-500/20 px-3 py-1.5 ring-1 ring-rose-500/30">
+              <span className="h-2 w-2 rounded-full bg-rose-400"></span>
+              <span className="font-semibold text-rose-200">LEFT = SHORTCUT</span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1.5 ring-1 ring-emerald-500/30">
+              <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+              <span className="font-semibold text-emerald-200">RIGHT = FAIR</span>
+            </div>
+          </div>
+        )}
+
         {/* Swipeable Question Card */}
         {!waitingForNext && (
-          <div className="mt-8 flex min-h-[50vh] items-center justify-center" style={{ touchAction: 'pan-y' }}>
+          <div className="mt-3 flex flex-1 items-center justify-center pb-4" style={{ touchAction: 'pan-y' }}>
             <div
               ref={cardRef}
               key={questionKey}
-              className="relative w-full max-w-sm rounded-3xl bg-zinc-900/90 shadow-2xl ring-1 ring-white/20 backdrop-blur-md cursor-grab active:cursor-grabbing"
+              className="relative flex h-[78vh] w-full max-w-md flex-col rounded-3xl bg-zinc-900/90 shadow-2xl ring-1 ring-white/20 backdrop-blur-md cursor-grab active:cursor-grabbing overflow-hidden"
               style={{
                 animation: isAnimatingOut ? 'none' : (showSwipeHint && answered === 0 ? 'fairshift-card-in 0.4s ease-out, fairshift-swipe-hint 1.1s ease-in-out 0.6s' : 'fairshift-card-in 0.4s ease-out'),
                 touchAction: 'none',
@@ -416,26 +433,38 @@ export default function Game({
               onPointerUp={handlePointerUp}
               onPointerCancel={handlePointerUp}
             >
-              {/* Swipe direction badges */}
-              {isDragging && Math.abs(dragCurrent - dragStart) > 30 && (
-                <>
-                  <div
-                    className="absolute left-6 top-6 z-20 rounded-xl bg-rose-500/90 px-4 py-2 font-bold text-white shadow-lg ring-2 ring-white/30 transition-opacity"
-                    style={{ opacity: (dragCurrent - dragStart) < -30 ? Math.min(1, Math.abs(dragCurrent - dragStart) / 90) : 0 }}
-                  >
-                    ✕ SHORTCUT
-                  </div>
-                  <div
-                    className="absolute right-6 top-6 z-20 rounded-xl bg-emerald-500/90 px-4 py-2 font-bold text-white shadow-lg ring-2 ring-white/30 transition-opacity"
-                    style={{ opacity: (dragCurrent - dragStart) > 30 ? Math.min(1, (dragCurrent - dragStart) / 90) : 0 }}
-                  >
-                    ✓ FAIR
-                  </div>
-                </>
+              {/* Centered swipe overlay */}
+              {isDragging && Math.abs(dragCurrent - dragStart) > 12 && (
+                <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                  {(dragCurrent - dragStart) < -12 && (
+                    <div
+                      className="rounded-2xl bg-rose-500/95 px-6 py-4 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
+                      style={{
+                        animation: 'fairshift-overlay-pop 0.2s ease-out',
+                        opacity: Math.min(1, Math.abs(dragCurrent - dragStart) / 80)
+                      }}
+                    >
+                      <div className="text-2xl font-extrabold text-white">✕ SHORTCUT</div>
+                      <div className="mt-1 text-sm font-medium text-white/90">Wrong choice</div>
+                    </div>
+                  )}
+                  {(dragCurrent - dragStart) > 12 && (
+                    <div
+                      className="rounded-2xl bg-emerald-500/95 px-6 py-4 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
+                      style={{
+                        animation: 'fairshift-overlay-pop 0.2s ease-out',
+                        opacity: Math.min(1, (dragCurrent - dragStart) / 80)
+                      }}
+                    >
+                      <div className="text-2xl font-extrabold text-white">✓ FAIR</div>
+                      <div className="mt-1 text-sm font-medium text-white/90">Right choice</div>
+                    </div>
+                  )}
+                </div>
               )}
 
               {/* Role-based visual "photo" */}
-              <div className="relative h-48 overflow-hidden rounded-t-3xl bg-zinc-800/50">
+              <div className="relative flex-[58] overflow-hidden bg-zinc-800/50">
                 {(character?.role === 'factory' || character?.role === 'technician') && (
                   <svg viewBox="0 0 400 192" className="h-full w-full">
                     <defs>
@@ -493,16 +522,13 @@ export default function Game({
               </div>
 
               {/* Question text */}
-              <div className="p-6">
+              <div className="flex-[42] flex flex-col justify-center p-6">
                 <div className="text-xl font-semibold leading-snug">
                   {question.text}
                 </div>
                 {question.context && (
                   <div className="mt-3 text-sm text-white/60 italic">{question.context}</div>
                 )}
-                <div className="mt-4 text-xs text-white/40 text-center">
-                  ← Swipe to answer →
-                </div>
               </div>
             </div>
           </div>
