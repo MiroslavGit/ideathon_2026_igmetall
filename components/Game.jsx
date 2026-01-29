@@ -335,52 +335,52 @@ export default function Game({
           </div>
         </div>
 
-        {/* Benefits row */}
-        <div className="mt-3 flex items-center gap-1.5">
-          {BENEFITS.map((b) => {
-            const unlocked = benefitsUnlocked[b.id];
-            return (
-              <div
-                key={b.id}
-                className={
-                  "flex h-7 w-7 items-center justify-center rounded-full text-xs ring-1 " +
-                  (unlocked
-                    ? "bg-lime-400/20 ring-lime-400/40 shadow-lg"
-                    : "bg-white/5 ring-white/10")
-                }
-                title={b.title}
-              >
-                <span className={unlocked ? "opacity-100" : "opacity-30"}>{b.icon}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Benefit popup */}
-        {benefitPopup && (
-          <div className="mt-2 animate-pulse rounded-xl bg-lime-400/15 px-3 py-2 text-xs font-semibold text-lime-200 ring-1 ring-lime-300/25">
-            {benefitPopup.icon} {benefitPopup.hook}
+        {/* Benefits row with label */}
+        <div className="mt-4">
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-white/50">Protections</div>
+          <div className="flex items-center gap-2">
+            {BENEFITS.map((b) => {
+              const unlocked = benefitsUnlocked[b.id];
+              const justUnlocked = benefitPopup?.icon === b.icon;
+              return (
+                <div
+                  key={b.id}
+                  className={
+                    "flex h-9 w-9 items-center justify-center rounded-full text-base ring-1 transition-all duration-300 " +
+                    (unlocked
+                      ? "bg-lime-400/15 ring-lime-400/30 shadow-lg shadow-lime-400/20"
+                      : "bg-white/5 ring-white/10 opacity-40")
+                  }
+                  style={{
+                    animation: justUnlocked ? "fairshift-benefit-pulse 0.6s ease-out" : undefined,
+                  }}
+                  title={b.title}
+                >
+                  <span className={unlocked ? "opacity-100" : "opacity-60"}>{b.icon}</span>
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
 
         {/* Question Card */}
         {!waitingForNext && (
           <div
             key={questionKey}
-            className="mt-5 rounded-2xl bg-zinc-900/80 p-5 shadow-2xl ring-1 ring-white/20 backdrop-blur-md"
+            className="mt-6 rounded-2xl bg-zinc-900/80 p-6 shadow-2xl ring-1 ring-white/20 backdrop-blur-md"
             style={{ animation: "fairshift-card-in 0.3s ease-out" }}
           >
-            <div className="text-base font-semibold leading-relaxed">
+            <div className="text-xl font-semibold leading-snug line-clamp-3">
               {question.text}
             </div>
             {question.context && (
-              <div className="mt-2 text-xs text-white/60">{question.context}</div>
+              <div className="mt-2 text-sm text-white/60">{question.context}</div>
             )}
 
-            {/* Question timer bar */}
-            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/10">
+            {/* Question timer bar - slimmer and less saturated */}
+            <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-linear-to-r from-lime-400 via-amber-400 to-rose-500 transition-all"
+                className="h-full rounded-full bg-linear-to-r from-lime-400/70 via-amber-400/70 to-rose-400/70 transition-all"
                 style={{ width: `${(1 - questionProgress) * 100}%` }}
               />
             </div>
@@ -402,30 +402,35 @@ export default function Game({
           </div>
         )}
 
-        {/* Answer buttons */}
-        <div className="mt-6 grid grid-cols-2 gap-4">
+        {/* Bottom spacing for fixed action bar */}
+        <div className="h-32" />
+      </div>
+
+      {/* Fixed bottom action bar with answer buttons */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-linear-to-t from-zinc-950 via-zinc-950 to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-6">
+        <div className="mx-auto grid w-full max-w-xl grid-cols-2 gap-3">
           <button
-            className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-lime-500 to-lime-600 px-6 py-6 font-extrabold text-white shadow-2xl shadow-lime-500/40 ring-2 ring-lime-400/30 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+            className="group relative overflow-hidden rounded-xl bg-emerald-900/40 px-5 py-4 font-bold text-white shadow-lg ring-1 ring-emerald-700/40 backdrop-blur-sm transition-all active:scale-[0.99] disabled:opacity-50 disabled:active:scale-100"
             onClick={() => commitAnswer(ANSWER.FAIR)}
             disabled={waitingForNext}
           >
-            <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-              <span className="text-2xl">✅</span>
-              <span className="text-sm">FAIR</span>
+            <div className="relative z-10 flex items-center justify-center gap-2">
+              <span className="text-lg">✓</span>
+              <span className="text-base">FAIR</span>
             </div>
-            <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-600/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           </button>
 
           <button
-            className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-rose-500 to-rose-600 px-6 py-6 font-extrabold text-white shadow-2xl shadow-rose-500/40 ring-2 ring-rose-400/30 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+            className="group relative overflow-hidden rounded-xl bg-rose-900/40 px-5 py-4 font-bold text-white shadow-lg ring-1 ring-rose-700/40 backdrop-blur-sm transition-all active:scale-[0.99] disabled:opacity-50 disabled:active:scale-100"
             onClick={() => commitAnswer(ANSWER.SHORTCUT)}
             disabled={waitingForNext}
           >
-            <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-              <span className="text-2xl">❌</span>
-              <span className="text-sm">SHORTCUT</span>
+            <div className="relative z-10 flex items-center justify-center gap-2">
+              <span className="text-lg">✕</span>
+              <span className="text-base">SHORTCUT</span>
             </div>
-            <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="absolute inset-0 bg-linear-to-br from-rose-600/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           </button>
         </div>
       </div>
