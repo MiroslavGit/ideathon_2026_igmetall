@@ -184,6 +184,8 @@ export const QUESTIONS_IGM_PACK = [
   },
 ];
 
+// Main questions export (using IGM pack)
+export const QUESTIONS = QUESTIONS_IGM_PACK;
 
 // Utility to filter questions by role
 export function getQuestionsForRole(role) {
