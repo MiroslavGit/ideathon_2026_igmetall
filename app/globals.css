@@ -24,3 +24,306 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Fair Shift animation (simple conveyor motion) */
+@keyframes fairshift-move {
+  0% {
+    transform: translate3d(0, -50%, 0);
+    opacity: 0.15;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate3d(180%, -50%, 0);
+    opacity: 0.1;
+  }
+}
+
+@keyframes fairshift-bg-scroll {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 320px 0;
+  }
+}
+
+@keyframes fairshift-bg-up {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 0 -420px;
+  }
+}
+
+@keyframes fairshift-card-in {
+  0% {
+    transform: translate3d(0, 40px, 0) scale(0.98);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fairshift-card-out {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate3d(0, -60px, 0) scale(0.98);
+    opacity: 0;
+  }
+}
+
+@keyframes fairshift-shake {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  20% {
+    transform: translate3d(-6px, 0, 0);
+  }
+
+  40% {
+    transform: translate3d(6px, 0, 0);
+  }
+
+  60% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  80% {
+    transform: translate3d(4px, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fairshift-light-sweep {
+
+  0%,
+  100% {
+    transform: translateX(-30%);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translateX(30%);
+    opacity: 0.5;
+  }
+}
+
+@keyframes fairshift-avatar-idle {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(-0.5deg);
+  }
+
+  50% {
+    transform: translateY(-4px) rotate(0.5deg);
+  }
+}
+
+@keyframes fairshift-gate-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(163, 230, 53, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(163, 230, 53, 0.6);
+  }
+}
+
+@keyframes fairshift-sparkle {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+@keyframes fairshift-snow {
+  0% {
+    transform: translate3d(0, -10%, 0);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.35;
+  }
+
+  100% {
+    transform: translate3d(0, 20%, 0);
+    opacity: 0.35;
+  }
+}
+
+@keyframes fairshift-blob-drift {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate3d(-5%, 8%, 0) scale(1.05);
+  }
+
+  66% {
+    transform: translate3d(7%, -6%, 0) scale(0.95);
+  }
+}
+
+@keyframes fairshift-track-move {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 0 -200px;
+  }
+}
+
+@keyframes fairshift-lights-pass {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.25;
+  }
+
+  80% {
+    opacity: 0.25;
+  }
+
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* Factory/Technician Environment Animations */
+@keyframes fairshift-conveyor-move {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 56px 56px;
+  }
+}
+
+@keyframes fairshift-roller-spin {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 30px 0;
+  }
+}
+
+@keyframes fairshift-parts-drift {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-100px);
+  }
+}
+
+@keyframes fairshift-sheen-sweep {
+
+  0%,
+  100% {
+    transform: translateX(-100%);
+    opacity: 0.15;
+  }
+
+  50% {
+    transform: translateX(100%);
+    opacity: 0.35;
+  }
+}
+
+/* Office/Desk Environment Animations */
+@keyframes fairshift-desk-scroll {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 0 -60px;
+  }
+}
+
+@keyframes fairshift-papers-drift {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 0 -100px;
+  }
+}
+
+@keyframes fairshift-ambient-pulse {
+
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes fairshift-light-sweep-slow {
+
+  0%,
+  100% {
+    transform: translateX(-50%);
+    opacity: 0.15;
+  }
+
+  50% {
+    transform: translateX(50%);
+    opacity: 0.25;
+  }
+}
+
+/* Prevent iOS rubber-band glow showing white behind full-screen views */
+html,
+body {
+  background: #0a0a0a;
+}
