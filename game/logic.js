@@ -5,7 +5,7 @@ import { QUESTIONS, ANSWER, getQuestionsForRole } from "./questions";
 export { ANSWER };
 
 export const DEFAULT_SESSION_SECONDS = 60;
-export const QUESTION_TIME_LIMIT_MS = 3000; // 3 seconds per question
+export const QUESTION_TIME_LIMIT_MS = 8000; // 8 seconds per question
 export const SPEED_BONUS_THRESHOLD_MS = 1000; // 1 second for speed bonus
 
 // Scoring constants
