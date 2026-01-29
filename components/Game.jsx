@@ -394,19 +394,25 @@ export default function Game({
           </div>
         </div>
 
-        {/* Pre-swipe instruction helper (first question only) */}
-        {showPreSwipeHelper && answered === 0 && !waitingForNext && (
-          <div className="mt-3 flex items-center justify-center gap-2" style={{ animation: 'fairshift-card-in 0.5s ease-out 0.3s both' }}>
-            <div className="flex items-center gap-1.5 rounded-full bg-rose-500/20 px-2.5 py-1 ring-1 ring-rose-500/30">
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
-              <span className="text-[10px] font-semibold text-rose-200">LEFT = SHORTCUT</span>
-            </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 ring-1 ring-emerald-500/30">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              <span className="text-[10px] font-semibold text-emerald-200">RIGHT = FAIR</span>
-            </div>
-          </div>
-        )}
+        {/* Action buttons - always visible */}
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <button
+            className="flex items-center gap-1.5 rounded-full bg-rose-500/20 px-2.5 py-1 ring-1 ring-rose-500/30 transition-all active:scale-95 active:bg-rose-500/30 disabled:opacity-50 cursor-pointer"
+            onClick={() => commitAnswer(ANSWER.SHORTCUT)}
+            disabled={waitingForNext}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
+            <span className="text-[10px] font-semibold text-rose-200">LEFT = SHORTCUT</span>
+          </button>
+          <button
+            className="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 ring-1 ring-emerald-500/30 transition-all active:scale-95 active:bg-emerald-500/30 disabled:opacity-50 cursor-pointer"
+            onClick={() => commitAnswer(ANSWER.FAIR)}
+            disabled={waitingForNext}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+            <span className="text-[10px] font-semibold text-emerald-200">RIGHT = FAIR</span>
+          </button>
+        </div>
 
         {/* Swipeable Question Card */}
         {!waitingForNext && (
