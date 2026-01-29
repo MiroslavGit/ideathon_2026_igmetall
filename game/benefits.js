@@ -14,7 +14,9 @@ export const BENEFITS = [
   {
     id: "strike",
     title: "Strike assistance",
-    icon: "✊", micro: "Strike pay when needed", hook: "If there’s a strike, members can get support.",
+    icon: "✊",
+    micro: "Strike pay when needed",
+    hook: "If there's a strike, members can get support.",
     bullets: [
       "Strike pay in the event of a strike",
       "Membership period matters",
@@ -42,7 +44,7 @@ export const BENEFITS = [
     bullets: [
       "Worldwide, outside work",
       "Sports, gardening, cycling, holiday",
-      "A “life happens” safety net",
+      "A 'life happens' safety net",
     ],
   },
   {
@@ -76,33 +78,40 @@ export function getBenefit(id) {
 }
 
 /**
- * Unlock rules are evaluated client-side using current run state.
- * runState shape (expected):
- * { meters, leftCount, maxStreak, correctStopCount, hadDip, recoveredFromDip, secondsLeft, sessionSeconds }
+ * Unlock rules for quiz-based game.
+ * runState shape:
+ * { stats: { tagCounts, correctByTag }, maxStreak, wrongStreak, secondsLeft, recoveredFromDip }
  */
 export function evaluateUnlocks(runState) {
   const s = runState;
-  const elapsed = Math.max(0, s.sessionSeconds - s.secondsLeft);
+  const stats = s.stats || {};
+  const correctByTag = stats.correctByTag || {};
 
   const unlocked = {};
 
-  // 1) Legal protection: handle payslip/warning/illness paperwork task correctly (tracked via legalTaskHandled flag)
-  unlocked.legal = s.legalTaskHandled === true;
+  // 1) Legal protection: answer at least 2 correct questions tagged pay/paperwork/discipline
+  const legalTags = ['pay', 'paperwork', 'discipline'];
+  const legalCorrect = legalTags.reduce((sum, tag) => sum + (correctByTag[tag] || 0), 0);
+  unlocked.legal = legalCorrect >= 2;
 
-  // 2) Strike assistance: Performance > 55 AND Safety > 35 at 45s (balanced)
-  unlocked.strike = elapsed >= 45 && s.meters.performance > 55 && s.meters.safety > 35;
+  // 2) Strike assistance: answer at least 1 correct question tagged 'strike' AND streak >= 3 at any point
+  const strikeCorrect = correctByTag['strike'] || 0;
+  unlocked.strike = strikeCorrect >= 1 && s.maxStreak >= 3;
 
-  // 3) Disciplinary/lockout: maintain Safety > 40 for at least 20s
-  unlocked.disciplinary = elapsed >= 20 && s.meters.safety > 40;
+  // 3) Disciplinary + lockout: answer at least 2 correct questions tagged discipline/discrimination
+  const disciplinaryTags = ['discipline', 'discrimination'];
+  const disciplinaryCorrect = disciplinaryTags.reduce((sum, tag) => sum + (correctByTag[tag] || 0), 0);
+  unlocked.disciplinary = disciplinaryCorrect >= 2;
 
-  // 4) Leisure accident insurance: Energy > 45 at 30s
-  unlocked.leisure = elapsed >= 30 && s.meters.energy > 45;
+  // 4) Leisure accident insurance: answer at least 1 correct question tagged 'leisure'
+  const leisureCorrect = correctByTag['leisure'] || 0;
+  unlocked.leisure = leisureCorrect >= 1;
 
-  // 5) Extraordinary emergencies: recover from a dip (any meter <30 then back >40)
+  // 5) Extraordinary emergencies: recover after 2 wrong answers then get 3 correct in a row
   unlocked.emergency = s.recoveredFromDip === true;
 
-  // 6) Death assistance: shown at end (always “available”, unlocked at end)
-  unlocked.death = s.secondsLeft <= 0 || s.meters.energy <= 0 || s.meters.safety <= 0;
+  // 6) Death assistance: always shown at end (not flashy during play)
+  unlocked.death = s.secondsLeft <= 0;
 
   return unlocked;
 }

@@ -2,24 +2,6 @@
 
 import { BENEFITS } from "../game/benefits";
 
-function MeterBar({ label, value }) {
-  const pct = Math.max(0, Math.min(100, value));
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-xs text-white/70">
-        <span>{label}</span>
-        <span className="tabular-nums">{pct}</span>
-      </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
-        <div
-          className="h-full rounded-full bg-white"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
 export default function Results({
   summary,
   bestScore,
@@ -27,7 +9,7 @@ export default function Results({
   onBoost,
 }) {
   return (
-    <div className="min-h-[100svh] bg-zinc-950 text-white">
+    <div className="min-h-svh bg-zinc-950 text-white">
       <div className="mx-auto w-full max-w-xl px-4 pb-10 pt-[calc(env(safe-area-inset-top)+20px)]">
         <h1 className="text-3xl font-extrabold tracking-tight">Results</h1>
 
@@ -38,9 +20,14 @@ export default function Results({
               {summary.score}
             </div>
             <div className="mt-2 flex items-center justify-between text-sm text-white/70">
-              <span className="tabular-nums">Tasks: {summary.processed}</span>
+              <span className="tabular-nums">Answered: {summary.answered}</span>
               <span className="tabular-nums">Max streak: {summary.maxStreak}</span>
             </div>
+            {summary.correctCount !== undefined && (
+              <div className="mt-1 text-xs text-white/60">
+                Correct: {summary.correctCount} • Wrong: {summary.wrongCount}
+              </div>
+            )}
           </div>
 
           <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
@@ -52,16 +39,6 @@ export default function Results({
                 </div>
               </div>
               <div className="text-2xl font-bold tabular-nums">{bestScore}</div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-            <div className="text-sm font-semibold">Meter summary</div>
-            <div className="mt-3 grid gap-3">
-              <MeterBar label="Performance" value={summary.meters.performance} />
-              <MeterBar label="Quality" value={summary.meters.quality} />
-              <MeterBar label="Safety" value={summary.meters.safety} />
-              <MeterBar label="Energy" value={summary.meters.energy} />
             </div>
           </div>
         </div>
