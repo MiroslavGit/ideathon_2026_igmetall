@@ -27,8 +27,8 @@ export const STRINGS = {
 
     // Game
     "game.protections": "Schutzrechte",
-    "game.leftShortcut": "LINKS = ABKÜRZUNG",
-    "game.rightFair": "RECHTS = FAIR",
+    "game.leftShortcut": "NACHGEBEN",
+    "game.rightFair": "MUND AUF",
     "game.timeLeft": "Zeit übrig",
     "game.streak": "Serie",
     "game.answered": "Beantwortet",
@@ -145,8 +145,8 @@ export const STRINGS = {
 
     // Game
     "game.protections": "Protections",
-    "game.leftShortcut": "LEFT = SHORTCUT",
-    "game.rightFair": "RIGHT = FAIR",
+    "game.leftShortcut": "GIVE IN",
+    "game.rightFair": "SPEAK UP",
     "game.timeLeft": "Time left",
     "game.streak": "Streak",
     "game.answered": "Answered",
@@ -239,8 +239,8 @@ export const STRINGS = {
 
     // Game
     "game.protections": "Schutzrechte",
-    "game.leftShortcut": "LINKS = ABKÜRZUNG",
-    "game.rightFair": "RECHTS = FAIR",
+    "game.leftShortcut": "NACHGEBEN",
+    "game.rightFair": "MUND AUF",
     "game.timeLeft": "Zeit übrig",
     "game.streak": "Serie",
     "game.answered": "Beantwortet",

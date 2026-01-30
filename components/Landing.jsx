@@ -10,21 +10,13 @@ export default function Landing({ onStart }) {
 
   return (
     <div className="relative min-h-[100svh] overflow-hidden bg-zinc-950 text-white">
-      {/* Modern 3D background with animated light sweep */}
+      {/* Modern 3D background */}
       <div
         className="pointer-events-none absolute inset-0"
         aria-hidden="true"
         style={{
           backgroundImage:
             "radial-gradient(1200px 600px at 50% -10%, rgba(163,230,53,0.20), transparent 70%), radial-gradient(900px 500px at 10% 50%, rgba(56,189,248,0.15), transparent 65%), radial-gradient(800px 450px at 90% 80%, rgba(167,139,250,0.12), transparent 60%), repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 14px)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40"
-        style={{
-          background:
-            "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.15) 0%, transparent 50%)",
-          animation: "fairshift-light-sweep 8s ease-in-out infinite",
         }}
       />
 

@@ -10,9 +10,8 @@ import {
   resetQuestionPicker,
   resolveAnswer,
   shouldEnd,
-  updateStats,
 } from "../game/logic";
-import { BENEFITS, evaluateUnlocks } from "../game/benefits";
+import { BENEFITS } from "../game/benefits";
 import { useI18n } from "../i18n/I18nProvider";
 import LanguageToggle from "./LanguageToggle";
 import { getQuestionImage } from "../game/questionImages";
@@ -54,10 +53,8 @@ export default function Game({
 
   // Track wrong streak for recovery detection
   const [wrongStreak, setWrongStreak] = useState(0);
-  const [recoveredFromDip, setRecoveredFromDip] = useState(false);
 
-  // Stats for benefit unlocking
-  const [stats, setStats] = useState({ tagCounts: {}, correctByTag: {} });
+  const [unlockedCount, setUnlockedCount] = useState(0); // Track number of benefits unlocked
 
   const [question, setQuestion] = useState(() => {
     resetQuestionPicker();
@@ -126,38 +123,22 @@ export default function Game({
     }, 1200);
   };
 
-  // Check unlock milestones
+  // Simple benefit unlock: 1 benefit per 2 correct answers
   useEffect(() => {
-    const runState = {
-      stats,
-      maxStreak,
-      streak,
-      wrongStreak,
-      correctCount,
-      wrongCount,
-      secondsLeft,
-      recoveredFromDip,
-    };
-    const unlocks = evaluateUnlocks(runState);
-    Object.keys(unlocks).forEach((k) => {
-      if (unlocks[k] && !benefitsUnlocked[k]) {
-        setBenefitsUnlocked((prev) => ({ ...prev, [k]: true }));
-        const ben = BENEFITS.find((b) => b.id === k);
-        // Don't show flashy toast for death benefit (respectful)
-        if (ben && k !== 'death') {
-          setBenefitPopup({ icon: ben.icon, hook: ben.micro });
-          setTimeout(() => setBenefitPopup(null), 1000);
-        }
-      }
-    });
-  }, [stats, maxStreak, streak, wrongStreak, correctCount, wrongCount, secondsLeft, recoveredFromDip, benefitsUnlocked]);
+    const nextUnlockedCount = Math.min(BENEFITS.length, Math.floor(correctCount / 2));
+    if (nextUnlockedCount > unlockedCount) {
+      // Unlock exactly one new benefit (the next one in order)
+      const benefit = BENEFITS[unlockedCount];
+      setBenefitsUnlocked((prev) => ({ ...prev, [benefit.id]: true }));
+      setUnlockedCount(nextUnlockedCount);
 
-  // Track recovery from wrong streak
-  useEffect(() => {
-    if (wrongStreak >= 2 && streak >= 3) {
-      setRecoveredFromDip(true);
+      // Don't show flashy toast for death benefit (respectful)
+      if (benefit.id !== 'death') {
+        setBenefitPopup({ icon: benefit.icon, hook: benefit.micro });
+        setTimeout(() => setBenefitPopup(null), 1000);
+      }
     }
-  }, [wrongStreak, streak]);
+  }, [correctCount, unlockedCount]);
 
   // End condition check
   useEffect(() => {
@@ -295,7 +276,11 @@ export default function Game({
     setAnswered((n) => n + 1);
 
     if (res.correct) {
-      setCorrectCount((n) => n + 1);
+      setCorrectCount((n) => {
+        const newCount = n + 1;
+        // Trigger unlock check via state update
+        return newCount;
+      });
       setWrongStreak(0);
       vibrate(14);
 
@@ -314,9 +299,6 @@ export default function Game({
       vibrate(28);
       setFeedback({ kind: "bad", text: "Oops" });
     }
-
-    // Update stats for benefit tracking
-    setStats((prev) => updateStats(prev, question, res.correct));
 
     advanceToNext();
   };
@@ -500,7 +482,7 @@ export default function Game({
             <div
               ref={cardRef}
               key={questionKey}
-              className="relative flex h-[68vh] w-full max-w-md flex-col rounded-3xl bg-zinc-900/90 shadow-2xl ring-1 ring-white/20 backdrop-blur-md cursor-grab active:cursor-grabbing overflow-hidden"
+              className="relative flex h-[55vh] w-full max-w-md flex-col rounded-3xl bg-zinc-900/90 shadow-2xl ring-1 ring-white/20 backdrop-blur-md cursor-grab active:cursor-grabbing overflow-hidden"
               style={{
                 animation: isAnimatingOut ? 'none' : (showSwipeHint && answered === 0 ? 'fairshift-card-in 0.4s ease-out, fairshift-swipe-hint 1.1s ease-in-out 0.6s' : 'fairshift-card-in 0.4s ease-out'),
                 touchAction: 'none',
@@ -522,7 +504,7 @@ export default function Game({
                         opacity: Math.min(1, Math.abs(dragCurrent - dragStart) / 80)
                       }}
                     >
-                      <div className="text-xl font-extrabold text-white">✕ SHORTCUT</div>
+                      <div className="text-xl font-extrabold text-white">✕ {t("game.leftShortcut")}</div>
                       <div className="mt-0.5 text-xs font-medium text-white/90">Wrong choice</div>
                     </div>
                   )}
@@ -534,7 +516,7 @@ export default function Game({
                         opacity: Math.min(1, (dragCurrent - dragStart) / 80)
                       }}
                     >
-                      <div className="text-xl font-extrabold text-white">✓ FAIR</div>
+                      <div className="text-xl font-extrabold text-white">✓ {t("game.rightFair")}</div>
                       <div className="mt-0.5 text-xs font-medium text-white/90">Right choice</div>
                     </div>
                   )}
@@ -553,13 +535,13 @@ export default function Game({
                 />
               </div>
 
-              {/* Question text - compact */}
-              <div className="flex-1 flex flex-col justify-center p-4">
-                <div className="text-lg font-semibold leading-snug line-clamp-3">
+              {/* Question text - compact (25% of card) */}
+              <div className="flex flex-col justify-center p-3 h-[14vh] min-h-[100px]">
+                <div className="text-base font-semibold leading-snug line-clamp-2">
                   {t(`question.${question.id}`)}
                 </div>
                 {question.context && (
-                  <div className="mt-2 text-sm text-white/60 italic line-clamp-1">{question.context}</div>
+                  <div className="mt-1.5 text-xs text-white/60 italic line-clamp-1">{question.context}</div>
                 )}
               </div>
             </div>
