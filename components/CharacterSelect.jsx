@@ -1,33 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-
-const ROLES = [
-  {
-    id: "factory",
-    title: "Factory Worker",
-    subtitle: "Production line / shopfloor",
-    icon: "🦺",
-  },
-  {
-    id: "technician",
-    title: "Technician",
-    subtitle: "Maintenance / troubleshooting",
-    icon: "🛠️",
-  },
-  {
-    id: "engineer",
-    title: "Engineer",
-    subtitle: "Office / planning",
-    icon: "📐",
-  },
-  {
-    id: "logistics",
-    title: "Logistics",
-    subtitle: "Admin / supply flow",
-    icon: "📦",
-  },
-];
+import { useI18n } from "../i18n/I18nProvider";
+import LanguageToggle from "./LanguageToggle";
 
 export default function CharacterSelect({
   initial,
@@ -37,6 +12,34 @@ export default function CharacterSelect({
   const [role, setRole] = useState(initial?.role || "factory");
   const [nickname, setNickname] = useState(initial?.nickname || "");
   const [accessory, setAccessory] = useState(initial?.accessory || "");
+  const { t } = useI18n();
+
+  const ROLES = [
+    {
+      id: "factory",
+      title: t("character.role.factory"),
+      subtitle: t("character.role.factorySub"),
+      icon: "🦺",
+    },
+    {
+      id: "technician",
+      title: t("character.role.technician"),
+      subtitle: t("character.role.technicianSub"),
+      icon: "🛠️",
+    },
+    {
+      id: "engineer",
+      title: t("character.role.engineer"),
+      subtitle: t("character.role.engineerSub"),
+      icon: "📐",
+    },
+    {
+      id: "logistics",
+      title: t("character.role.logistics"),
+      subtitle: t("character.role.logisticsSub"),
+      icon: "📦",
+    },
+  ];
 
   const defaultColor = role === "engineer" ? "#38BDF8" : role === "logistics" ? "#FBBF24" : "#A3E635";
 
@@ -58,20 +61,21 @@ export default function CharacterSelect({
             className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold active:translate-y-px"
             onClick={onBack}
           >
-            ← Back
+            {t("character.back")}
           </button>
+          <LanguageToggle />
         </div>
 
-        <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-center">Pick your role</h1>
+        <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-center">{t("character.title")}</h1>
 
         <section className="mt-4 rounded-2xl bg-white/5 p-4 shadow-xl ring-1 ring-white/10 backdrop-blur-sm">
           <label className="block text-xs font-semibold text-white/70">
-            Nickname (optional)
+            {t("character.nickname")}
           </label>
           <input
             value={nickname}
             onChange={(e) => setNickname(e.target.value.slice(0, 16))}
-            placeholder="e.g., Alex"
+            placeholder={t("character.nicknamePlaceholder")}
             className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white placeholder:text-white/35 outline-none ring-0 focus:border-white/20"
             autoComplete="off"
           />
@@ -79,7 +83,7 @@ export default function CharacterSelect({
 
         <section className="mt-4 rounded-2xl bg-white/5 p-4 shadow-xl ring-1 ring-white/10 backdrop-blur-sm">
           <label className="block text-xs font-semibold text-white/70 mb-3">
-            Role
+            {t("character.role")}
           </label>
           <div className="grid grid-cols-2 gap-2">
             {ROLES.map((r) => {
@@ -131,7 +135,7 @@ export default function CharacterSelect({
                 })
               }
             >
-              Start shift
+              {t("character.startShift")}
             </button>
           </div>
         </div>
@@ -140,4 +144,5 @@ export default function CharacterSelect({
   );
 }
 
-export { ROLES };
+// Export ROLES for backward compatibility, but it won't be translated outside the component
+export { };

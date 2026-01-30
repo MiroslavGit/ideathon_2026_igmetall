@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "../i18n/I18nProvider";
+import LanguageToggle from "./LanguageToggle";
 
 export default function Landing({ onStart }) {
   const [accordionOpen, setAccordionOpen] = useState(false);
+  const { t } = useI18n();
 
   return (
     <div className="relative min-h-[100svh] overflow-hidden bg-zinc-950 text-white">
@@ -25,14 +28,19 @@ export default function Landing({ onStart }) {
         }}
       />
 
-      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-xl flex-col justify-center px-4 pb-10 pt-[calc(env(safe-area-inset-top)+40px)]">
+      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-xl flex-col justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+60px)] pt-[calc(env(safe-area-inset-top)+40px)]">
+        {/* Language toggle in top right */}
+        <div className="absolute top-[calc(env(safe-area-inset-top)+16px)] right-4">
+          <LanguageToggle />
+        </div>
+
         {/* Above the fold: minimal hero */}
         <div className="text-center">
           <h1 className="text-6xl font-extrabold tracking-tight drop-shadow-2xl">
-            FAIR SHIFT
+            {t("landing.title")}
           </h1>
           <p className="mt-3 text-base leading-7 text-white/80">
-            60 seconds. Fair choice or shortcut?
+            {t("landing.subtitle")}
           </p>
 
           {/* Glass card with 3D shadow */}
@@ -41,7 +49,7 @@ export default function Landing({ onStart }) {
               className="inline-flex w-full items-center justify-center rounded-[22px] bg-gradient-to-b from-lime-400 to-lime-500 px-8 py-5 text-lg font-extrabold text-zinc-950 shadow-xl shadow-lime-500/30 active:translate-y-0.5 active:shadow-lg"
               onClick={onStart}
             >
-              Start
+              {t("landing.start")}
             </button>
           </div>
         </div>
@@ -52,7 +60,7 @@ export default function Landing({ onStart }) {
             className="flex w-full items-center justify-between rounded-2xl bg-white/5 px-5 py-4 ring-1 ring-white/10 backdrop-blur-sm active:translate-y-px"
             onClick={() => setAccordionOpen(!accordionOpen)}
           >
-            <span className="text-sm font-semibold">How it works</span>
+            <span className="text-sm font-semibold">{t("landing.howItWorks")}</span>
             <span
               className={
                 "text-lg font-bold transition-transform " +
@@ -68,23 +76,19 @@ export default function Landing({ onStart }) {
               <ul className="space-y-3 text-sm leading-6 text-white/80">
                 <li className="flex items-start gap-3">
                   <span className="mt-0.5">⬅️</span>
-                  <span>
-                    Swipe <span className="font-semibold text-rose-300">LEFT</span> = SHORTCUT (wrong)
-                  </span>
+                  <span>{t("landing.swipeLeft")}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="mt-0.5">➡️</span>
-                  <span>
-                    Swipe <span className="font-semibold text-lime-300">RIGHT</span> = FAIR (right)
-                  </span>
+                  <span>{t("landing.swipeRight")}</span>
                 </li>
               </ul>
             </div>
           )}
         </div>
 
-        <footer className="mt-6 text-center text-xs text-white/50">
-          No login. No tracking. Just a fair shift.
+        <footer className="fixed left-0 right-0 bottom-0 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 text-center text-xs text-white/50 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent">
+          {t("landing.footer")}
         </footer>
       </div>
     </div>

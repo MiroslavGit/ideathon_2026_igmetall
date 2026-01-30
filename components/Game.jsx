@@ -12,6 +12,8 @@ import {
   updateStats,
 } from "../game/logic";
 import { BENEFITS, evaluateUnlocks } from "../game/benefits";
+import { useI18n } from "../i18n/I18nProvider";
+import LanguageToggle from "./LanguageToggle";
 
 function vibrate(ms) {
   try {
@@ -27,6 +29,8 @@ export default function Game({
   character,
   onFinish,
 }) {
+  const { t } = useI18n();
+
   const rng = useMemo(() => {
     const { mulberry32 } = require("../game/logic");
     return mulberry32(seed);
@@ -353,22 +357,27 @@ export default function Game({
       <div className="pointer-events-none absolute inset-0 bg-black/30" />
 
       <div className="relative mx-auto w-full max-w-xl px-4 pb-6 pt-[calc(env(safe-area-inset-top)+10px)]">
+        {/* Language toggle */}
+        <div className="mb-2 flex justify-end">
+          <LanguageToggle />
+        </div>
+
         {/* Compact HUD */}
         <div className="flex items-center justify-between">
           <div>
             <div className="text-2xl font-extrabold tabular-nums">{Math.ceil(secondsLeft)}s</div>
-            <div className="text-[10px] text-white/60">Time left</div>
+            <div className="text-[10px] text-white/60">{t("game.timeLeft")}</div>
           </div>
           <div className="text-right">
             <div className="text-[10px] text-white/60">
-              Streak: <span className="font-semibold">{streak}</span> • Answered: {answered}
+              {t("game.streak")}: <span className="font-semibold">{streak}</span> • {t("game.answered")}: {answered}
             </div>
           </div>
         </div>
 
         {/* Benefits row with label */}
         <div className="mt-4">
-          <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-wider text-white/50">Protections</div>
+          <div className="mb-2 text-center text-[10px] font-semibold uppercase tracking-wider text-white/50">{t("game.protections")}</div>
           <div className="flex items-center justify-center gap-2">
             {BENEFITS.map((b) => {
               const unlocked = benefitsUnlocked[b.id];
@@ -402,7 +411,7 @@ export default function Game({
             disabled={waitingForNext}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
-            <span className="text-[10px] font-semibold text-rose-200">LEFT = SHORTCUT</span>
+            <span className="text-[10px] font-semibold text-rose-200">{t("game.leftShortcut")}</span>
           </button>
           <button
             className="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 ring-1 ring-emerald-500/30 transition-all active:scale-95 active:bg-emerald-500/30 disabled:opacity-50 cursor-pointer"
@@ -410,7 +419,7 @@ export default function Game({
             disabled={waitingForNext}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-            <span className="text-[10px] font-semibold text-emerald-200">RIGHT = FAIR</span>
+            <span className="text-[10px] font-semibold text-emerald-200">{t("game.rightFair")}</span>
           </button>
         </div>
 
@@ -436,33 +445,33 @@ export default function Game({
                 <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
                   {(dragCurrent - dragStart) < -12 && (
                     <div
-                      className="rounded-2xl bg-rose-500/95 px-6 py-4 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
+                      className="rounded-xl bg-rose-500/95 px-4 py-3 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
                       style={{
                         animation: 'fairshift-overlay-pop 0.2s ease-out',
                         opacity: Math.min(1, Math.abs(dragCurrent - dragStart) / 80)
                       }}
                     >
-                      <div className="text-2xl font-extrabold text-white">✕ SHORTCUT</div>
-                      <div className="mt-1 text-sm font-medium text-white/90">Wrong choice</div>
+                      <div className="text-xl font-extrabold text-white">✕ SHORTCUT</div>
+                      <div className="mt-0.5 text-xs font-medium text-white/90">Wrong choice</div>
                     </div>
                   )}
                   {(dragCurrent - dragStart) > 12 && (
                     <div
-                      className="rounded-2xl bg-emerald-500/95 px-6 py-4 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
+                      className="rounded-xl bg-emerald-500/95 px-4 py-3 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
                       style={{
                         animation: 'fairshift-overlay-pop 0.2s ease-out',
                         opacity: Math.min(1, (dragCurrent - dragStart) / 80)
                       }}
                     >
-                      <div className="text-2xl font-extrabold text-white">✓ FAIR</div>
-                      <div className="mt-1 text-sm font-medium text-white/90">Right choice</div>
+                      <div className="text-xl font-extrabold text-white">✓ FAIR</div>
+                      <div className="mt-0.5 text-xs font-medium text-white/90">Right choice</div>
                     </div>
                   )}
                 </div>
               )}
 
               {/* Role-based visual "photo" */}
-              <div className="relative flex-[58] overflow-hidden bg-zinc-800/50">
+              <div className="relative flex-[58] overflow-hidden bg-zinc-800/50 rounded-t-3xl">
                 {(character?.role === 'factory' || character?.role === 'technician') && (
                   <svg viewBox="0 0 400 192" className="h-full w-full">
                     <defs>
@@ -522,7 +531,7 @@ export default function Game({
               {/* Question text */}
               <div className="flex-[42] flex flex-col justify-center p-6">
                 <div className="text-xl font-semibold leading-snug">
-                  {question.text}
+                  {t(`question.${question.id}`)}
                 </div>
                 {question.context && (
                   <div className="mt-3 text-sm text-white/60 italic">{question.context}</div>

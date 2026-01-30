@@ -1,6 +1,10 @@
 "use client";
 
+import { useI18n } from "../i18n/I18nProvider";
+
 export default function BoostModal({ open, onClose }) {
+  const { t } = useI18n();
+
   if (!open) return null;
 
   return (
@@ -18,17 +22,16 @@ export default function BoostModal({ open, onClose }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
-              FAIR BOOST
+              {t("boost.title")}
             </h2>
             <p className="mt-1 text-sm leading-6 text-zinc-600">
-              Want a fair shift in real life? Get info on pay, working time,
-              safety.
+              {t("boost.description")}
             </p>
           </div>
           <button
             className="rounded-full p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("boost.close")}
           >
             ✕
           </button>
@@ -40,14 +43,14 @@ export default function BoostModal({ open, onClose }) {
           target="_blank"
           rel="noreferrer"
         >
-          Register with IG Metall
+          {t("boost.register")}
         </a>
 
         <button
           className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-900 active:translate-y-px"
           onClick={onClose}
         >
-          Not now
+          {t("boost.notNow")}
         </button>
       </div>
     </div>
