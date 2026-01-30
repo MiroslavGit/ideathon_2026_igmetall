@@ -4,7 +4,7 @@
 export const QUESTION_IMAGES = {
   "tariff-rights-know": "/images/q1.png",
   "azubi-pay-fairness": "/images/q2.png",
-  "time-off-trade": "/images/q3.png",
+  //"time-off-trade": "/images/q3.png",
   "four-day-week-pressure": "/images/q4.png",
   "ai-performance-rating": "/images/q5.png",
   "ai-human-final-say": "/images/q6.png",

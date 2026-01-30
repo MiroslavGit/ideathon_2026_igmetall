@@ -24,13 +24,13 @@ export const QUESTIONS_IGM_PACK = [
     tags: ["pay", "tariff"],
     roleWeight: { factory: 2, tech: 2, engineer: 1, logistics: 2 },
   },
-  {
-    id: "time-off-trade",
-    text: "You can choose time off instead of money. Do you avoid asking, or ask for it?",
-    correct: ANSWER.SPEAK_UP,
-    tags: ["working-time", "leisure"],
-    roleWeight: { factory: 2, tech: 2, engineer: 2, logistics: 2 },
-  },
+  // {
+  //   id: "time-off-trade",
+  //   text: "You can choose time off instead of money. Do you avoid asking, or ask for it?",
+  //   correct: ANSWER.SPEAK_UP,
+  //   tags: ["working-time", "leisure"],
+  //   roleWeight: { factory: 2, tech: 2, engineer: 2, logistics: 2 },
+  // },
   {
     id: "four-day-week-pressure",
     text: "A 4-day week is discussed. Do you drop it to keep peace, or keep talking about it?",
