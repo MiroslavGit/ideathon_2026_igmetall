@@ -33,7 +33,7 @@ export const QUESTIONS_IGM_PACK = [
   {
     id: "four-day-week-pressure",
     text: "A 4-day week is discussed. Management says 'never'. Drop it and stay quiet?",
-    correct: ANSWER.FAIR,
+    correct: ANSWER.SHORTCUT,
     tags: ["working-time", "discipline"],
     roleWeight: { factory: 2, tech: 2, engineer: 2, logistics: 2 },
   },

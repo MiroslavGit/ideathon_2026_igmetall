@@ -505,7 +505,7 @@ export default function Game({
                       }}
                     >
                       <div className="text-xl font-extrabold text-white">✕ {t("game.leftShortcut")}</div>
-                      <div className="mt-0.5 text-xs font-medium text-white/90">Wrong choice</div>
+                      <div className="mt-0.5 text-xs font-medium text-white/90">{t("game.wrongChoice")}</div>
                     </div>
                   )}
                   {(dragCurrent - dragStart) > 12 && (
@@ -517,7 +517,7 @@ export default function Game({
                       }}
                     >
                       <div className="text-xl font-extrabold text-white">✓ {t("game.rightFair")}</div>
-                      <div className="mt-0.5 text-xs font-medium text-white/90">Right choice</div>
+                      <div className="mt-0.5 text-xs font-medium text-white/90">{t("game.rightChoice")}</div>
                     </div>
                   )}
                 </div>
