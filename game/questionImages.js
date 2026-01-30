@@ -24,6 +24,16 @@ export const QUESTION_IMAGES = {
   "flood-emergency-help": "/images/q20.png",
   "bereaved-support": "/images/q21.png",
   "emergency-real-fixed": "/images/q22.png",
+  "argument-on-floor": "/images/q23.png",
+  "report-anonymously": "/images/q24.png",
+  "dont-sign-now": "/images/q25.png",
+  "pause-when-angry": "/images/q26.png",
+  "unsafe-task-stop": "/images/q27.png",
+  "medical-privacy": "/images/q28.png",
+  "avoid-rumors": "/images/q29.png",
+  "stop-shortcut-safety": "/images/q30.png",
+  "group-chat-pressure": "/images/q31.png",
+  "safety-photo-proof": "/images/q32.png",
 };
 
 export const DEFAULT_IMAGE = "/images/q1.jpg";
