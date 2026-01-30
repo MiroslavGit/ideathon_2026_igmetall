@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import {
   ANSWER,
   DEFAULT_SESSION_SECONDS,
@@ -14,6 +15,7 @@ import {
 import { BENEFITS, evaluateUnlocks } from "../game/benefits";
 import { useI18n } from "../i18n/I18nProvider";
 import LanguageToggle from "./LanguageToggle";
+import { getQuestionImage } from "../game/questionImages";
 
 function vibrate(ms) {
   try {
@@ -470,62 +472,16 @@ export default function Game({
                 </div>
               )}
 
-              {/* Role-based visual "photo" */}
+              {/* Question image */}
               <div className="relative flex-[58] overflow-hidden bg-zinc-800/50 rounded-t-3xl">
-                {(character?.role === 'factory' || character?.role === 'technician') && (
-                  <svg viewBox="0 0 400 192" className="h-full w-full">
-                    <defs>
-                      <linearGradient id="factoryGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#163828" />
-                        <stop offset="100%" stopColor="#0a1f14" />
-                      </linearGradient>
-                      <pattern id="stripes" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                        <rect x="0" y="0" width="20" height="40" fill="#fbbf24" opacity="0.3" />
-                      </pattern>
-                    </defs>
-                    <rect width="400" height="192" fill="url(#factoryGrad)" />
-                    <rect width="400" height="192" fill="url(#stripes)" opacity="0.4" />
-                    <rect x="50" y="60" width="300" height="40" rx="8" fill="#52525b" opacity="0.6" />
-                    <circle cx="80" cy="140" r="12" fill="#ef4444" opacity="0.7" />
-                    <circle cx="200" cy="140" r="12" fill="#ef4444" opacity="0.7" />
-                    <circle cx="320" cy="140" r="12" fill="#ef4444" opacity="0.7" />
-                    <polygon points="160,100 180,80 220,80 240,100" fill="#fbbf24" opacity="0.5" />
-                  </svg>
-                )}
-                {character?.role === 'engineer' && (
-                  <svg viewBox="0 0 400 192" className="h-full w-full">
-                    <defs>
-                      <linearGradient id="engineerGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#1e3a8a" />
-                        <stop offset="100%" stopColor="#0c1e42" />
-                      </linearGradient>
-                    </defs>
-                    <rect width="400" height="192" fill="url(#engineerGrad)" />
-                    <rect x="80" y="60" width="240" height="140" rx="8" fill="#334155" opacity="0.6" />
-                    <rect x="100" y="80" width="180" height="100" rx="4" fill="#38bdf8" opacity="0.3" />
-                    <line x1="120" y1="100" x2="260" y2="100" stroke="#38bdf8" strokeWidth="2" opacity="0.5" />
-                    <line x1="120" y1="120" x2="240" y2="120" stroke="#38bdf8" strokeWidth="2" opacity="0.5" />
-                    <line x1="120" y1="140" x2="220" y2="140" stroke="#38bdf8" strokeWidth="2" opacity="0.5" />
-                    <circle cx="300" cy="50" r="20" fill="#60a5fa" opacity="0.4" />
-                  </svg>
-                )}
-                {character?.role === 'logistics' && (
-                  <svg viewBox="0 0 400 192" className="h-full w-full">
-                    <defs>
-                      <linearGradient id="logisticsGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#78350f" />
-                        <stop offset="100%" stopColor="#3a1a08" />
-                      </linearGradient>
-                    </defs>
-                    <rect width="400" height="192" fill="url(#logisticsGrad)" />
-                    <rect x="60" y="80" width="80" height="80" rx="4" fill="#92400e" opacity="0.6" stroke="#fbbf24" strokeWidth="2" />
-                    <rect x="160" y="80" width="80" height="80" rx="4" fill="#92400e" opacity="0.6" stroke="#fbbf24" strokeWidth="2" />
-                    <rect x="260" y="80" width="80" height="80" rx="4" fill="#92400e" opacity="0.6" stroke="#fbbf24" strokeWidth="2" />
-                    <rect x="110" y="40" width="80" height="80" rx="4" fill="#b45309" opacity="0.7" stroke="#fbbf24" strokeWidth="2" />
-                    <rect x="210" y="40" width="80" height="80" rx="4" fill="#b45309" opacity="0.7" stroke="#fbbf24" strokeWidth="2" />
-                    <path d="M 40 160 L 60 140 L 80 160 L 60 180 Z" fill="#fbbf24" opacity="0.5" />
-                  </svg>
-                )}
+                <Image
+                  src={getQuestionImage(question.id)}
+                  alt=""
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 420px"
+                  className="object-cover"
+                />
               </div>
 
               {/* Question text */}
