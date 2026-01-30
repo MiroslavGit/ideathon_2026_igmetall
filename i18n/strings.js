@@ -123,11 +123,6 @@ export const STRINGS = {
     "question.dont-sign-now": "Personalabteilung drängt auf sofortige Unterschrift. Sofort unterschreiben oder ablehnen und erst prüfen?",
     "question.pause-when-angry": "Du bist wütend in einem Meeting. Sofort reagieren oder pausieren, bevor du antwortest?",
     "question.unsafe-task-stop": "Du fühlst dich bei einer Aufgabe unsicher. Trotzdem weitermachen oder stoppen und um Hilfe bitten?",
-    "question.medical-privacy": "Chef fragt nach detaillierten Gesundheitsinfos. Zu viel preisgeben oder nur das Nötigste mitteilen?",
-    "question.avoid-rumors": "Kollegen verbreiten Gerüchte. Mitmachen oder raushalten?",
-    "question.stop-shortcut-safety": "Ein Kollege schlägt vor, einen Sicherheitsschritt zu überspringen. Mitmachen oder die Abkürzung stoppen?",
-    "question.group-chat-pressure": "Vorgesetzter drängt dich in einem Gruppenchat. Öffentlich antworten oder in einen privaten/richtigen Kanal wechseln?",
-    "question.safety-photo-proof": "Ein Sicherheitsproblem wiederholt sich. Nur mündlich beschweren oder dokumentieren und richtig melden?",
   },
   en: {
     // Landing
