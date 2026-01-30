@@ -479,72 +479,81 @@ export default function Game({
         {/* Swipeable Question Card */}
         {!waitingForNext && (
           <div className="mt-2 flex flex-1 items-center justify-center pb-4" style={{ touchAction: 'pan-y' }}>
-            <div
-              ref={cardRef}
-              key={questionKey}
-              className="relative flex h-[55vh] w-full max-w-md flex-col rounded-3xl bg-zinc-900/90 shadow-2xl ring-1 ring-white/20 backdrop-blur-md cursor-grab active:cursor-grabbing overflow-hidden"
-              style={{
-                animation: isAnimatingOut ? 'none' : (showSwipeHint && answered === 0 ? 'fairshift-card-in 0.4s ease-out, fairshift-swipe-hint 1.1s ease-in-out 0.6s' : 'fairshift-card-in 0.4s ease-out'),
-                touchAction: 'none',
-                transform: isDragging ? `translateX(${dragCurrent - dragStart}px) rotate(${(dragCurrent - dragStart) * 0.05}deg)` : 'translateX(0) rotate(0deg)'
-              }}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerUp}
-            >
-              {/* Centered swipe overlay */}
-              {isDragging && Math.abs(dragCurrent - dragStart) > 12 && (
-                <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
-                  {(dragCurrent - dragStart) < -12 && (
-                    <div
-                      className="rounded-xl bg-rose-500/95 px-4 py-3 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
-                      style={{
-                        animation: 'fairshift-overlay-pop 0.2s ease-out',
-                        opacity: Math.min(1, Math.abs(dragCurrent - dragStart) / 80)
-                      }}
-                    >
-                      <div className="text-xl font-extrabold text-white">✕ {t("game.leftStayQuiet")}</div>
-                      <div className="mt-0.5 text-xs font-medium text-white/90">{t("game.wrongChoice")}</div>
+            {(() => {
+              // Get translation with fallback to question.text
+              const qKey = `question.${question.id}`;
+              const tr = t(qKey);
+              const questionText = (tr && tr !== qKey) ? tr : (question.text || "");
+
+              return (
+                <div
+                  ref={cardRef}
+                  key={questionKey}
+                  className="relative flex h-[55vh] w-full max-w-md flex-col rounded-3xl bg-zinc-900/90 shadow-2xl ring-1 ring-white/20 backdrop-blur-md cursor-grab active:cursor-grabbing overflow-hidden"
+                  style={{
+                    animation: isAnimatingOut ? 'none' : (showSwipeHint && answered === 0 ? 'fairshift-card-in 0.4s ease-out, fairshift-swipe-hint 1.1s ease-in-out 0.6s' : 'fairshift-card-in 0.4s ease-out'),
+                    touchAction: 'none',
+                    transform: isDragging ? `translateX(${dragCurrent - dragStart}px) rotate(${(dragCurrent - dragStart) * 0.05}deg)` : 'translateX(0) rotate(0deg)'
+                  }}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                >
+                  {/* Centered swipe overlay */}
+                  {isDragging && Math.abs(dragCurrent - dragStart) > 12 && (
+                    <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                      {(dragCurrent - dragStart) < -12 && (
+                        <div
+                          className="rounded-xl bg-rose-500/95 px-4 py-3 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
+                          style={{
+                            animation: 'fairshift-overlay-pop 0.2s ease-out',
+                            opacity: Math.min(1, Math.abs(dragCurrent - dragStart) / 80)
+                          }}
+                        >
+                          <div className="text-xl font-extrabold text-white">✕ {t("game.leftStayQuiet")}</div>
+                          <div className="mt-0.5 text-xs font-medium text-white/90">{t("game.wrongChoice")}</div>
+                        </div>
+                      )}
+                      {(dragCurrent - dragStart) > 12 && (
+                        <div
+                          className="rounded-xl bg-emerald-500/95 px-4 py-3 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
+                          style={{
+                            animation: 'fairshift-overlay-pop 0.2s ease-out',
+                            opacity: Math.min(1, (dragCurrent - dragStart) / 80)
+                          }}
+                        >
+                          <div className="text-xl font-extrabold text-white">✓ {t("game.rightSpeakUp")}</div>
+                          <div className="mt-0.5 text-xs font-medium text-white/90">{t("game.rightChoice")}</div>
+                        </div>
+                      )}
                     </div>
                   )}
-                  {(dragCurrent - dragStart) > 12 && (
-                    <div
-                      className="rounded-xl bg-emerald-500/95 px-4 py-3 shadow-2xl ring-2 ring-white/40 backdrop-blur-sm text-center"
-                      style={{
-                        animation: 'fairshift-overlay-pop 0.2s ease-out',
-                        opacity: Math.min(1, (dragCurrent - dragStart) / 80)
-                      }}
-                    >
-                      <div className="text-xl font-extrabold text-white">✓ {t("game.rightSpeakUp")}</div>
-                      <div className="mt-0.5 text-xs font-medium text-white/90">{t("game.rightChoice")}</div>
+
+                  {/* Question image - landscape format */}
+                  <div className="relative w-full aspect-[16/9] overflow-hidden bg-zinc-800/50 rounded-t-3xl">
+                    <Image
+                      src={getQuestionImage(question.id)}
+                      alt=""
+                      fill
+                      priority
+                      sizes="(max-width: 768px) 100vw, 420px"
+                      className="object-cover"
+                    />
+                  </div>
+
+                  {/* Question text - full text visible with scroll */}
+                  <div className="flex flex-col justify-start items-center p-3 h-[14vh] min-h-[100px] text-center overflow-auto">
+                    <div className="text-base font-semibold leading-snug break-words whitespace-normal">
+                      {questionText}
                     </div>
-                  )}
+                    {question.context && (
+                      <div className="mt-1.5 text-xs text-white/60 italic break-words whitespace-normal">{question.context}</div>
+                    )}
+                  </div>
                 </div>
-              )}
-
-              {/* Question image - landscape format */}
-              <div className="relative w-full aspect-[16/9] overflow-hidden bg-zinc-800/50 rounded-t-3xl">
-                <Image
-                  src={getQuestionImage(question.id)}
-                  alt=""
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, 420px"
-                  className="object-cover"
-                />
-              </div>
-
-              {/* Question text - full text visible with scroll */}
-              <div className="flex flex-col justify-start items-center p-3 h-[14vh] min-h-[100px] text-center overflow-auto">
-                <div className="text-base font-semibold leading-snug break-words whitespace-normal">
-                  {t(`question.${question.id}`)}
-                </div>
-                {question.context && (
-                  <div className="mt-1.5 text-xs text-white/60 italic break-words whitespace-normal">{question.context}</div>
-                )}
-              </div>
-            </div>
+              );
+            })()}
           </div>
         )}
 

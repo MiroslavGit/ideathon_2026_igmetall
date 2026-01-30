@@ -111,14 +111,14 @@ export const QUESTIONS_IGM_PACK = [
   // --- Safety + health ---
   {
     id: "heat-stress-breaks",
-    text: "Itâ€™s very hot at work. Do you skip breaks, or take breaks for safety?",
+    text: "It's very hot at work. Do you skip breaks, or take breaks for safety?",
     correct: ANSWER.SPEAK_UP,
     tags: ["safety", "working-time"],
     roleWeight: { factory: 3, tech: 2, engineer: 1, logistics: 2 },
   },
   {
     id: "near-miss-report",
-    text: "A near-accident happens. Do you ignore it, or report it so it wonâ€™t repeat?",
+    text: "A near-accident happens. Do you ignore it, or report it so it won’t repeat?",
     correct: ANSWER.SPEAK_UP,
     tags: ["safety", "discipline"],
     roleWeight: { factory: 3, tech: 2, engineer: 1, logistics: 2 },
@@ -202,21 +202,7 @@ export const QUESTIONS_IGM_PACK = [
     correct: ANSWER.STAY_QUIET,
     tags: ["legal", "paperwork"],
     roleWeight: { factory: 2, tech: 2, engineer: 2, logistics: 2 },
-  },
-  {
-    id: "pause-when-angry",
-    text: "You're angry in a meeting. Do you react instantly, or pause before answering?",
-    correct: ANSWER.STAY_QUIET,
-    tags: ["discipline"],
-    roleWeight: { factory: 1, tech: 1, engineer: 3, logistics: 2 },
-  },
-  {
-    id: "unsafe-task-stop",
-    text: "You feel unsafe doing a task. Do you continue anyway, or stop and ask for help?",
-    correct: ANSWER.STAY_QUIET,
-    tags: ["safety"],
-    roleWeight: { factory: 3, tech: 3, engineer: 1, logistics: 2 },
-  },
+  }
 ];
 
 // Main questions export (using IGM pack)
