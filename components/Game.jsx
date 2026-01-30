@@ -220,7 +220,7 @@ export default function Game({
 
     if (Math.abs(deltaX) > threshold) {
       // Swipe detected - compute answer and play sound immediately (in gesture context)
-      const answer = deltaX < 0 ? ANSWER.SHORTCUT : ANSWER.FAIR;
+      const answer = deltaX < 0 ? ANSWER.STAY_QUIET : ANSWER.SPEAK_UP;
       const isCorrect = question.correct === answer;
 
       // Play sound immediately while still in user gesture
@@ -451,28 +451,28 @@ export default function Game({
           <button
             className="flex items-center gap-1.5 rounded-full bg-rose-500/20 px-2.5 py-1 ring-1 ring-rose-500/30 transition-all active:scale-95 active:bg-rose-500/30 disabled:opacity-50 cursor-pointer"
             onClick={() => {
-              const isCorrect = question.correct === ANSWER.SHORTCUT;
+              const isCorrect = question.correct === ANSWER.STAY_QUIET;
               initAudio();
               playSound(isCorrect ? posAudioRef : negAudioRef);
-              commitAnswer(ANSWER.SHORTCUT);
+              commitAnswer(ANSWER.STAY_QUIET);
             }}
             disabled={waitingForNext}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
-            <span className="text-[10px] font-semibold text-rose-200">{t("game.leftShortcut")}</span>
+            <span className="text-[10px] font-semibold text-rose-200">{t("game.leftStayQuiet")}</span>
           </button>
           <button
             className="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 ring-1 ring-emerald-500/30 transition-all active:scale-95 active:bg-emerald-500/30 disabled:opacity-50 cursor-pointer"
             onClick={() => {
-              const isCorrect = question.correct === ANSWER.FAIR;
+              const isCorrect = question.correct === ANSWER.SPEAK_UP;
               initAudio();
               playSound(isCorrect ? posAudioRef : negAudioRef);
-              commitAnswer(ANSWER.FAIR);
+              commitAnswer(ANSWER.SPEAK_UP);
             }}
             disabled={waitingForNext}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-            <span className="text-[10px] font-semibold text-emerald-200">{t("game.rightFair")}</span>
+            <span className="text-[10px] font-semibold text-emerald-200">{t("game.rightSpeakUp")}</span>
           </button>
         </div>
 
@@ -504,7 +504,7 @@ export default function Game({
                         opacity: Math.min(1, Math.abs(dragCurrent - dragStart) / 80)
                       }}
                     >
-                      <div className="text-xl font-extrabold text-white">✕ {t("game.leftShortcut")}</div>
+                      <div className="text-xl font-extrabold text-white">✕ {t("game.leftStayQuiet")}</div>
                       <div className="mt-0.5 text-xs font-medium text-white/90">{t("game.wrongChoice")}</div>
                     </div>
                   )}
@@ -516,7 +516,7 @@ export default function Game({
                         opacity: Math.min(1, (dragCurrent - dragStart) / 80)
                       }}
                     >
-                      <div className="text-xl font-extrabold text-white">✓ {t("game.rightFair")}</div>
+                      <div className="text-xl font-extrabold text-white">✓ {t("game.rightSpeakUp")}</div>
                       <div className="mt-0.5 text-xs font-medium text-white/90">{t("game.rightChoice")}</div>
                     </div>
                   )}
@@ -535,13 +535,13 @@ export default function Game({
                 />
               </div>
 
-              {/* Question text - compact (25% of card) */}
-              <div className="flex flex-col justify-center items-center p-3 h-[14vh] min-h-[100px] text-center">
-                <div className="text-base font-semibold leading-snug line-clamp-2">
+              {/* Question text - full text visible with scroll */}
+              <div className="flex flex-col justify-start items-center p-3 h-[14vh] min-h-[100px] text-center overflow-auto">
+                <div className="text-base font-semibold leading-snug break-words whitespace-normal">
                   {t(`question.${question.id}`)}
                 </div>
                 {question.context && (
-                  <div className="mt-1.5 text-xs text-white/60 italic line-clamp-1">{question.context}</div>
+                  <div className="mt-1.5 text-xs text-white/60 italic break-words whitespace-normal">{question.context}</div>
                 )}
               </div>
             </div>

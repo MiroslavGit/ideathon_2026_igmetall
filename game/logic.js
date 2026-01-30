@@ -14,11 +14,10 @@ export const SCORE_WRONG = -50;
 export const STREAK_BONUS_MULTIPLIER = 15;
 export const SPEED_BONUS = 25;
 
-// Module-level state for question selection
-let questionBag = [];
-let questionBagIndex = 0;
-let lastQuestionId = null;
-let lastAnswers = []; // Track last few correct answers for balance
+// Module-level state for question selection - no-repeat pool system
+let questionPool = []; // Shuffled pool of question IDs
+let currentRng = null;
+let currentRole = null;
 
 // Utility functions
 export function clamp01(x) {
@@ -62,131 +61,50 @@ function shuffle(array, rng) {
   return arr;
 }
 
-// Create a balanced bag of questions
-function createQuestionBag(rng, role, bagSize = 30) {
+// Build weighted pool of question IDs (with role weights)
+function buildQuestionPool(rng, role) {
   const questionsForRole = getQuestionsForRole(role);
+  const pool = [];
 
-  // Separate high-weight (role-specific) and low-weight (common) questions
-  const roleSpecific = questionsForRole.filter(q => q.weight >= 3);
-  const common = questionsForRole.filter(q => q.weight < 3);
-
-  // Calculate target: 70-85% role-specific, 15-30% common
-  const targetRoleCount = Math.floor(bagSize * (0.70 + rng() * 0.15)); // 70-85%
-  const targetCommonCount = bagSize - targetRoleCount;
-
-  // Build weighted pools
-  const rolePool = [];
-  roleSpecific.forEach((q) => {
+  // Expand each question ID by its weight
+  questionsForRole.forEach((q) => {
     const count = Math.max(1, Math.round(q.weight));
     for (let i = 0; i < count; i++) {
-      rolePool.push(q);
+      pool.push(q.id);
     }
   });
 
-  const commonPool = [];
-  common.forEach((q) => {
-    const count = Math.max(1, Math.round(q.weight));
-    for (let i = 0; i < count; i++) {
-      commonPool.push(q);
-    }
-  });
-
-  // Pick from each pool
-  const shuffledRole = shuffle(rolePool, rng);
-  const shuffledCommon = shuffle(commonPool, rng);
-  const bag = [
-    ...shuffledRole.slice(0, targetRoleCount),
-    ...shuffledCommon.slice(0, targetCommonCount)
-  ];
-
-  // Shuffle combined bag
-  const finalBag = shuffle(bag, rng).slice(0, bagSize);
-
-  // Ensure we have both FAIR and SHORTCUT answers
-  const fairCount = finalBag.filter(q => q.correct === ANSWER.FAIR).length;
-  const shortcutCount = finalBag.filter(q => q.correct === ANSWER.SHORTCUT).length;
-
-  // If too imbalanced, adjust
-  if (fairCount === 0 || shortcutCount === 0) {
-    const fairQuestions = questionsForRole.filter(q => q.correct === ANSWER.FAIR);
-    const shortcutQuestions = questionsForRole.filter(q => q.correct === ANSWER.SHORTCUT);
-
-    if (fairCount === 0 && fairQuestions.length > 0) {
-      const idx = Math.floor(rng() * finalBag.length);
-      finalBag[idx] = fairQuestions[Math.floor(rng() * fairQuestions.length)];
-    }
-    if (shortcutCount === 0 && shortcutQuestions.length > 0) {
-      const idx = Math.floor(rng() * finalBag.length);
-      finalBag[idx] = shortcutQuestions[Math.floor(rng() * shortcutQuestions.length)];
-    }
-  }
-
-  return finalBag;
+  // Shuffle the pool
+  return shuffle(pool, rng);
 }
 
-// Reset question picker state
+// Reset question picker state and build initial pool
 export function resetQuestionPicker() {
-  questionBag = [];
-  questionBagIndex = 0;
-  lastQuestionId = null;
-  lastAnswers = [];
+  questionPool = [];
+  currentRng = null;
+  currentRole = null;
 }
 
-// Pick next question with constraints
+// Pick next question - no repeats until pool is exhausted
 export function pickQuestion(rng, role) {
-  // Refill bag if needed
-  if (questionBagIndex >= questionBag.length - 2 || questionBag.length === 0) {
-    questionBag = createQuestionBag(rng, role, 30);
-    questionBagIndex = 0;
+  // Store rng and role for refills
+  if (!currentRng) currentRng = rng;
+  if (!currentRole) currentRole = role;
+
+  // If pool is empty, rebuild and reshuffle
+  if (questionPool.length === 0) {
+    questionPool = buildQuestionPool(rng, role);
   }
 
-  let attempts = 0;
-  const maxAttempts = 20;
+  // Pop the next question ID from the pool
+  const questionId = questionPool.shift();
 
-  while (attempts < maxAttempts) {
-    const candidate = questionBag[questionBagIndex];
+  // Find and return the full question object
+  const questionsForRole = getQuestionsForRole(role);
+  const question = questionsForRole.find(q => q.id === questionId);
 
-    // Check constraints
-    const sameQuestion = candidate.id === lastQuestionId;
-
-    // Check answer balance: avoid too many of same answer in a row
-    const recentAnswers = lastAnswers.slice(-3);
-    const allSameAnswer = recentAnswers.length >= 3 &&
-      recentAnswers.every(a => a === candidate.correct);
-
-    if (!sameQuestion && !allSameAnswer) {
-      // Valid question found
-      lastQuestionId = candidate.id;
-      lastAnswers.push(candidate.correct);
-      if (lastAnswers.length > 5) lastAnswers.shift();
-
-      questionBagIndex++;
-      return candidate;
-    }
-
-    // Try swapping with next question in bag
-    if (questionBagIndex + 1 < questionBag.length) {
-      [questionBag[questionBagIndex], questionBag[questionBagIndex + 1]] =
-        [questionBag[questionBagIndex + 1], questionBag[questionBagIndex]];
-    } else {
-      // At end of bag, just take it
-      questionBagIndex++;
-      lastQuestionId = candidate.id;
-      lastAnswers.push(candidate.correct);
-      if (lastAnswers.length > 5) lastAnswers.shift();
-      return candidate;
-    }
-
-    attempts++;
-  }
-
-  // Fallback: return current question
-  const fallback = questionBag[questionBagIndex] || questionBag[0];
-  questionBagIndex++;
-  lastQuestionId = fallback.id;
-  lastAnswers.push(fallback.correct);
-  if (lastAnswers.length > 5) lastAnswers.shift();
-  return fallback;
+  // Fallback to first question if not found
+  return question || questionsForRole[0];
 }
 
 // Resolve player's answer

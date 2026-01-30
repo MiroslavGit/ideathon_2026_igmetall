@@ -27,8 +27,8 @@ export const STRINGS = {
 
     // Game
     "game.protections": "Schutzrechte",
-    "game.leftShortcut": "NACHGEBEN",
-    "game.rightFair": "MUND AUF",
+    "game.leftStayQuiet": "SCHWEIGEN",
+    "game.rightSpeakUp": "MUND AUF",
     "game.wrongChoice": "Falsche Wahl",
     "game.rightChoice": "Richtige Wahl",
     "game.timeLeft": "Zeit übrig",
@@ -157,8 +157,8 @@ export const STRINGS = {
 
     // Game
     "game.protections": "Protections",
-    "game.leftShortcut": "GIVE IN",
-    "game.rightFair": "SPEAK UP",
+    "game.leftStayQuiet": "STAY QUIET",
+    "game.rightSpeakUp": "SPEAK UP",
     "game.wrongChoice": "Wrong choice",
     "game.rightChoice": "Right choice",
     "game.timeLeft": "Time left",
@@ -253,11 +253,6 @@ export const STRINGS = {
     "question.dont-sign-now": "HR pushes a document 'right now'. Do you sign immediately, or refuse and review first?",
     "question.pause-when-angry": "You're angry in a meeting. Do you react instantly, or pause before answering?",
     "question.unsafe-task-stop": "You feel unsafe doing a task. Do you continue anyway, or stop and ask for help?",
-    "question.medical-privacy": "Boss asks for detailed medical info. Do you overshare to keep peace, or share only what's required?",
-    "question.avoid-rumors": "Coworkers spread rumors. Do you join in, or stay out of it?",
-    "question.stop-shortcut-safety": "A coworker suggests skipping a safety step. Do you go along, or stop the shortcut?",
-    "question.group-chat-pressure": "A supervisor pressures you in a group chat. Do you answer publicly, or move it to a private/proper channel?",
-    "question.safety-photo-proof": "A safety issue repeats. Do you complain only verbally, or document it and report it properly?",
   },
   de: {
     // Landing
@@ -287,8 +282,8 @@ export const STRINGS = {
 
     // Game
     "game.protections": "Schutzrechte",
-    "game.leftShortcut": "NACHGEBEN",
-    "game.rightFair": "MUND AUF",
+    "game.leftStayQuiet": "SCHWEIGEN",
+    "game.rightSpeakUp": "MUND AUF",
     "game.wrongChoice": "Falsche Wahl",
     "game.rightChoice": "Richtige Wahl",
     "game.timeLeft": "Zeit übrig",
@@ -383,10 +378,5 @@ export const STRINGS = {
     "question.dont-sign-now": "Personalabteilung drängt auf sofortige Unterschrift. Sofort unterschreiben oder ablehnen und erst prüfen?",
     "question.pause-when-angry": "Du bist wütend in einem Meeting. Sofort reagieren oder pausieren, bevor du antwortest?",
     "question.unsafe-task-stop": "Du fühlst dich bei einer Aufgabe unsicher. Trotzdem weitermachen oder stoppen und um Hilfe bitten?",
-    "question.medical-privacy": "Chef fragt nach detaillierten Gesundheitsinfos. Zu viel preisgeben oder nur das Nötigste mitteilen?",
-    "question.avoid-rumors": "Kollegen verbreiten Gerüchte. Mitmachen oder raushalten?",
-    "question.stop-shortcut-safety": "Ein Kollege schlägt vor, einen Sicherheitsschritt zu überspringen. Mitmachen oder die Abkürzung stoppen?",
-    "question.group-chat-pressure": "Vorgesetzter drängt dich in einem Gruppenchat. Öffentlich antworten oder in einen privaten/richtigen Kanal wechseln?",
-    "question.safety-photo-proof": "Ein Sicherheitsproblem wiederholt sich. Nur mündlich beschweren oder dokumentieren und richtig melden?",
   },
 };
