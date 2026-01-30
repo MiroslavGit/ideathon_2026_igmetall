@@ -5,8 +5,8 @@ export const STRINGS = {
     "landing.subtitle": "Wischen: FAIR oder ABKÜRZUNG.",
     "landing.start": "Start",
     "landing.howItWorks": "So funktioniert's",
-    "landing.swipeLeft": "Nach LINKS = ABKÜRZUNG (falsch)",
-    "landing.swipeRight": "Nach RECHTS = FAIR (richtig)",
+    "landing.swipeLeft": "Nach LINKS = SCHWEIGEN (falsch)",
+    "landing.swipeRight": "Nach RECHTS = MUND AUF (richtig)",
     "landing.footer": "Kein Login. Kein Tracking. Nur faire Arbeit.",
 
     // Character Select
@@ -130,8 +130,8 @@ export const STRINGS = {
     "landing.subtitle": "Swipe: FAIR or SHORTCUT.",
     "landing.start": "Start",
     "landing.howItWorks": "How it works",
-    "landing.swipeLeft": "Swipe LEFT = SHORTCUT (wrong)",
-    "landing.swipeRight": "Swipe RIGHT = FAIR (right)",
+    "landing.swipeLeft": "Swipe LEFT = STAY QUIET",
+    "landing.swipeRight": "Swipe RIGHT = SPEAK UP",
     "landing.footer": "No login. No tracking. Just a fair shift.",
 
     // Character Select
@@ -255,8 +255,8 @@ export const STRINGS = {
     "landing.subtitle": "Wischen: FAIR oder ABKÜRZUNG.",
     "landing.start": "Start",
     "landing.howItWorks": "So funktioniert's",
-    "landing.swipeLeft": "Nach LINKS = ABKÜRZUNG (falsch)",
-    "landing.swipeRight": "Nach RECHTS = FAIR (richtig)",
+    "landing.swipeLeft": "Nach LINKS = SCHWEIGEN (falsch)",
+    "landing.swipeRight": "Nach RECHTS = MUND AUF (richtig)",
     "landing.footer": "Kein Login. Kein Tracking. Nur faire Arbeit.",
 
     // Character Select
