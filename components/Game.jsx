@@ -536,7 +536,7 @@ export default function Game({
               </div>
 
               {/* Question text - compact (25% of card) */}
-              <div className="flex flex-col justify-center p-3 h-[14vh] min-h-[100px]">
+              <div className="flex flex-col justify-center items-center p-3 h-[14vh] min-h-[100px] text-center">
                 <div className="text-base font-semibold leading-snug line-clamp-2">
                   {t(`question.${question.id}`)}
                 </div>
