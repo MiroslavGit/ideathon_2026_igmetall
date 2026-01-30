@@ -41,6 +41,9 @@ export default function Game({
   const startedAtRef = useRef(0);
   const finishedRef = useRef(false);
   const questionStartRef = useRef(0);
+  const posAudioRef = useRef(null);
+  const negAudioRef = useRef(null);
+  const audioReadyRef = useRef(false);
 
   const [secondsLeft, setSecondsLeft] = useState(sessionSeconds);
   const [streak, setStreak] = useState(0);
@@ -85,6 +88,18 @@ export default function Game({
   useEffect(() => {
     startedAtRef.current = performance.now();
     questionStartRef.current = startedAtRef.current;
+  }, []);
+
+  // DEV-only: Verify audio files exist
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      fetch("/sounds/positive.wav", { method: "HEAD" })
+        .then(res => { if (!res.ok) console.warn("Missing /sounds/positive.wav"); })
+        .catch(() => console.warn("Failed to verify /sounds/positive.wav"));
+      fetch("/sounds/negative.wav", { method: "HEAD" })
+        .then(res => { if (!res.ok) console.warn("Missing /sounds/negative.wav"); })
+        .catch(() => console.warn("Failed to verify /sounds/negative.wav"));
+    }
   }, []);
 
   // Timer tick loop
@@ -160,9 +175,47 @@ export default function Game({
     }
   }, [secondsLeft, answered, correctCount, wrongCount, maxStreak, benefitsUnlocked, character]);
 
+  // Initialize audio on first user gesture (mobile autoplay requirement)
+  const initAudio = async () => {
+    if (audioReadyRef.current) return;
+    try {
+      posAudioRef.current = new Audio("/sounds/positive.wav");
+      negAudioRef.current = new Audio("/sounds/negative.wav");
+      posAudioRef.current.volume = 0.6;
+      negAudioRef.current.volume = 0.6;
+      posAudioRef.current.preload = "auto";
+      negAudioRef.current.preload = "auto";
+      // Unlock audio on mobile by playing muted
+      for (const audio of [posAudioRef.current, negAudioRef.current]) {
+        audio.muted = true;
+        await audio.play().then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.muted = false;
+        }).catch(err => {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn("Audio blocked:", err);
+          }
+        });
+      }
+      audioReadyRef.current = true;
+    } catch { }
+  };
+
+  // Helper to play sound
+  const playSound = (ref) => {
+    const a = ref?.current;
+    if (!a) return;
+    try {
+      a.currentTime = 0;
+      a.play().catch(() => { });
+    } catch { }
+  };
+
   // Swipe handlers
   const handlePointerDown = (e) => {
     if (waitingForNext || isAnimatingOut) return;
+    initAudio(); // Initialize audio on first interaction
     setShowSwipeHint(false); // Cancel hint once user interacts
     setIsDragging(true);
     setDragStart(e.clientX);
@@ -185,8 +238,14 @@ export default function Game({
     const threshold = 90;
 
     if (Math.abs(deltaX) > threshold) {
-      // Swipe detected - animate out and commit answer
+      // Swipe detected - compute answer and play sound immediately (in gesture context)
       const answer = deltaX < 0 ? ANSWER.SHORTCUT : ANSWER.FAIR;
+      const isCorrect = question.correct === answer;
+
+      // Play sound immediately while still in user gesture
+      initAudio();
+      playSound(isCorrect ? posAudioRef : negAudioRef);
+
       setIsAnimatingOut(true);
 
       if (cardRef.current) {
@@ -409,7 +468,12 @@ export default function Game({
         <div className="mt-3 flex items-center justify-center gap-2">
           <button
             className="flex items-center gap-1.5 rounded-full bg-rose-500/20 px-2.5 py-1 ring-1 ring-rose-500/30 transition-all active:scale-95 active:bg-rose-500/30 disabled:opacity-50 cursor-pointer"
-            onClick={() => commitAnswer(ANSWER.SHORTCUT)}
+            onClick={() => {
+              const isCorrect = question.correct === ANSWER.SHORTCUT;
+              initAudio();
+              playSound(isCorrect ? posAudioRef : negAudioRef);
+              commitAnswer(ANSWER.SHORTCUT);
+            }}
             disabled={waitingForNext}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
@@ -417,7 +481,12 @@ export default function Game({
           </button>
           <button
             className="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 ring-1 ring-emerald-500/30 transition-all active:scale-95 active:bg-emerald-500/30 disabled:opacity-50 cursor-pointer"
-            onClick={() => commitAnswer(ANSWER.FAIR)}
+            onClick={() => {
+              const isCorrect = question.correct === ANSWER.FAIR;
+              initAudio();
+              playSound(isCorrect ? posAudioRef : negAudioRef);
+              commitAnswer(ANSWER.FAIR);
+            }}
             disabled={waitingForNext}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
@@ -472,8 +541,8 @@ export default function Game({
                 </div>
               )}
 
-              {/* Question image */}
-              <div className="relative flex-[58] overflow-hidden bg-zinc-800/50 rounded-t-3xl">
+              {/* Question image - landscape format */}
+              <div className="relative w-full aspect-[16/9] overflow-hidden bg-zinc-800/50 rounded-t-3xl">
                 <Image
                   src={getQuestionImage(question.id)}
                   alt=""
@@ -484,13 +553,13 @@ export default function Game({
                 />
               </div>
 
-              {/* Question text */}
-              <div className="flex-[42] flex flex-col justify-center p-6">
-                <div className="text-xl font-semibold leading-snug">
+              {/* Question text - compact */}
+              <div className="flex-1 flex flex-col justify-center p-4">
+                <div className="text-lg font-semibold leading-snug line-clamp-3">
                   {t(`question.${question.id}`)}
                 </div>
                 {question.context && (
-                  <div className="mt-3 text-sm text-white/60 italic">{question.context}</div>
+                  <div className="mt-2 text-sm text-white/60 italic line-clamp-1">{question.context}</div>
                 )}
               </div>
             </div>
